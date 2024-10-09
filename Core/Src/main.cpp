@@ -30,14 +30,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "../../UserLib/pwm.hpp"
-#include "../../UserLib/pid.hpp"
-#include "../../UserLib/math.hpp"
-#include "../../UserLib/programable_LED.hpp"
-#include "../../UserLib/LED_pattern.hpp"
-#include "../../UserLib/encoder.hpp"
-#include "../../UserLib/cordic.hpp"
-#include "../../UserLib/fdcan_control.hpp"
+#include "../../UserLib/CommonLib/pwm.hpp"
+#include "../../UserLib/CommonLib/pid.hpp"
+#include "../../UserLib/CommonLib/math.hpp"
+#include "../../UserLib/CommonLib/programable_LED.hpp"
+#include "../../UserLib/CommonLib/LED_pattern.hpp"
+#include "../../UserLib/CommonLib/encoder.hpp"
+#include "../../UserLib/CommonLib/cordic.hpp"
+#include "../../UserLib/CommonLib/fdcan_control.hpp"
 
 #include <stdio.h>
 #include <memory>
@@ -170,10 +170,10 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 }
 
 float adc_to_current(uint16_t adc_val){
-	constexpr float rl = (2.2*1.5)/(2.2+1.5); //åŸºæ¿ä¸Šï¿½????¿½?¿½??¿½?¿½???¿½?¿½??¿½?¿½?åœ§æŠµæŠ—ï¿½????¿½?¿½??¿½?¿½???¿½?¿½??¿½?¿½?
+	constexpr float rl = (2.2*1.5)/(2.2+1.5); //åŸºæ¿ä¸Šï¿½????ï¿½ï¿½?ï¿½ï¿½??ï¿½ï¿½?ï¿½ï¿½???ï¿½ï¿½?ï¿½ï¿½??ï¿½ï¿½?ï¿½ï¿½?åœ§æŠµæŠ—ï¿½????ï¿½ï¿½?ï¿½ï¿½??ï¿½ï¿½?ï¿½ï¿½???ï¿½ï¿½?ï¿½ï¿½??ï¿½ï¿½?ï¿½ï¿½?
 	constexpr float v_bias = rl/(rl+22)*3.3;  //ãƒã‚¤ã‚¢ã‚¹é›»åœ§
-	constexpr float amp_gain_inv = 1.0f/7.0f; //cube mxã§è¨­å®šã™ã‚‹ã‚ªãƒšã‚¢ãƒ³ãƒ—ï¿½????¿½?¿½??¿½?¿½ã‚²ã‚¤ãƒ³ã®???¿½?¿½??¿½?¿½?æ•°
-	constexpr float shant_r_inv = 1.0f/0.005f;         //ã‚·ãƒ£ãƒ³ãƒˆæŠµæŠ—ï¿½????¿½?¿½??¿½?¿½å€¤
+	constexpr float amp_gain_inv = 1.0f/7.0f; //cube mxã§è¨­å®šã™ã‚‹ã‚ªãƒšã‚¢ãƒ³ãƒ—ï¿½????ï¿½ï¿½?ï¿½ï¿½??ï¿½ï¿½?ï¿½ï¿½ã‚²ã‚¤ãƒ³ã®???ï¿½ï¿½?ï¿½ï¿½??ï¿½ï¿½?ï¿½ï¿½?æ•°
+	constexpr float shant_r_inv = 1.0f/0.005f;         //ã‚·ãƒ£ãƒ³ãƒˆæŠµæŠ—ï¿½????ï¿½ï¿½?ï¿½ï¿½??ï¿½ï¿½?ï¿½ï¿½å€¤
 	float v = adc_val*3.3/static_cast<float>(1<<12);
 
 	return ((amp_gain_inv + 1.0f)*v_bias - amp_gain_inv*v)*shant_r_inv;
