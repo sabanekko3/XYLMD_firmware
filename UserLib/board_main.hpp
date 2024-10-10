@@ -26,15 +26,26 @@
 #include "CommonLib/math.hpp"
 #include "CommonLib/programable_LED.hpp"
 #include "CommonLib/LED_pattern.hpp"
-#include "CommonLib/encoder.hpp"
+#include "CommonLib/sincos_enc.hpp"
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
 
 namespace LMDBoard{
 
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
+	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
-	inline auto atan_enc = SabaneLib::ContinuableEncoder(16,1000.f);
+
+	//inline auto atan_enc = SabaneLib::ContinuableEncoder(16,1000.f);
+
+	inline auto atan_enc = SabaneLib::SinCosEncoder{
+		1000.f,
+		[](q15_t cos,q15_t sin)->q15_t{
+			cordic.start_atan2(static_cast<q15_t>(cos * 16),static_cast<q15_t>(sin * 16));
+			while(not cordic.is_avilable());
+			return cordic.read_ans();
+		}
+	};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
@@ -44,9 +55,10 @@ namespace LMDBoard{
 		atan_enc
 	};
 
-	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
-
-	inline auto position_pid = SabaneLib::PIDBuilder(1000.0f).set_gain(0.000'01f, 0.000'007f, 0.0f).set_limit(0.1f).build();
+	inline auto position_pid = SabaneLib::PIDBuilder(1000.0f)
+			.set_gain(0.000'01f, 0.000'007f, 0.0f)
+			.set_limit(0.1f)
+			.build();
 
 	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
 		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),

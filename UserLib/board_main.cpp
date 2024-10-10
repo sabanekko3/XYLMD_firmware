@@ -66,10 +66,7 @@ extern "C" void main_(void){
 	while(HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin));
 	printf("start\r\n");
 
-	b::cordic.start_atan2(static_cast<q15_t>(b::qcos * 16),static_cast<q15_t>(b::qsin * 16));
-	while(not b::cordic.is_avilable());
-
-	b::atan_enc_bias = b::atan_enc.update(b::cordic.read_ans());
+	b::atan_enc_bias = b::atan_enc.update(b::qcos, b::qsin);
 	b::position_pid.set_limit(0.3f);
 	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 

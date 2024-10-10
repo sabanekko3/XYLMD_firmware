@@ -32,9 +32,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == &htim17){
-		b::cordic.start_atan2(static_cast<q15_t>(b::qcos*16),static_cast<q15_t>(b::qsin*16));
-		while(not b::cordic.is_avilable());
-		b::atan_enc.update(b::cordic.read_ans());
+		b::atan_enc.update(b::qcos, b::qsin);
 
 		constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
 		float target_angle = b::target_mm * mm_to_q15rad;
