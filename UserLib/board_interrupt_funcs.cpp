@@ -9,14 +9,6 @@
 
 namespace b = LMDBoard;
 
-void motor_move(float pwm){
-	float rad = SabaneLib::MotorMath::q15_to_rad(b::atan_enc.get_angle()) + (M_PI/2.0f)*(pwm>0.0f?1.0f:-1.0f);
-
-	b::PWM_U.out(b::table.cos(rad                                  )*0.4f*abs(pwm) + 0.5f);
-	b::PWM_V.out(b::table.cos(rad - static_cast<float>(2*M_PI)/3.0f)*0.4f*abs(pwm) + 0.5f);
-	b::PWM_W.out(b::table.cos(rad + static_cast<float>(2*M_PI)/3.0f)*0.4f*abs(pwm) + 0.5f);
-}
-
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs){
 	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 	b::can.rx_interrupt_task();
@@ -51,7 +43,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
 		float target_angle = b::target_mm * mm_to_q15rad;
-		motor_move(b::position_pid(target_angle,b::atan_enc.get_angle()-b::atan_enc_bias));
+		b::motor.move(b::position_pid(target_angle,b::atan_enc.get_angle()-b::atan_enc_bias));
 	}
 }
 

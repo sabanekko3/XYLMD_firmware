@@ -9,7 +9,7 @@
 #define BOARD_PARAMS_HPP_
 
 namespace LSMParam{
-	enum class Shaft{
+	enum class Axis{
 		X,
 		Y
 	};

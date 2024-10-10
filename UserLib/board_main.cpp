@@ -13,18 +13,20 @@
 namespace b = LMDBoard;
 
 
-float data_select(LSMParam::Shaft xy,SabaneLib::ByteReader &r){
+static float data_select(LSMParam::Axis xy,SabaneLib::ByteReader &r){
 	auto data_x = r.read<float>();
 	auto data_y = r.read<float>();
 
 	switch(xy){
-	case LSMParam::Shaft::X:
+	case LSMParam::Axis::X:
 		return data_x.has_value() ? data_x.value() : 0.0f;
-	case LSMParam::Shaft::Y:
+	case LSMParam::Axis::Y:
 		return data_y.has_value() ? data_y.value() : 0.0f;
 	}
 	return 0.0f;
 }
+
+
 
 extern "C" void main_(void){
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
@@ -47,12 +49,7 @@ extern "C" void main_(void){
 	b::can.start();
 	b::can.set_filter_free(0);
 
-	b::PWM_U.start();
-	b::PWM_V.start();
-	b::PWM_W.start();
-	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);
-	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_2);
-	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_3);
+	b::motor.start();
 
 	HAL_TIM_Base_Start_IT(&htim17);
 

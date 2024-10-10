@@ -19,6 +19,7 @@
 #include "gpio.h"
 
 #include "board_params.hpp"
+#include "motor.hpp"
 
 #include "CommonLib/pwm.hpp"
 #include "CommonLib/pid.hpp"
@@ -30,13 +31,19 @@
 #include "CommonLib/fdcan_control.hpp"
 
 namespace LMDBoard{
-	inline auto PWM_U = SabaneLib::LEDPWMHard{&htim1,TIM_CHANNEL_2};
-	inline auto PWM_V = SabaneLib::LEDPWMHard{&htim1,TIM_CHANNEL_3};
-	inline auto PWM_W = SabaneLib::LEDPWMHard{&htim1,TIM_CHANNEL_1};
+
 
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 
 	inline auto atan_enc = SabaneLib::ContinuableEncoder(16,1000.f);
+
+	inline auto motor = LMDLib::Motor{
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_3},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_1},
+		[](float r)->SabaneLib::MotorMath::UVW {return table.uvw_phase(r);},
+		atan_enc
+	};
 
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
@@ -53,7 +60,7 @@ namespace LMDBoard{
 
 	inline constexpr float angle_to_rad = 2.0f*M_PI/(float)(1<<12);
 
-	inline constexpr auto my_axis = LSMParam::Shaft::X;
+	inline constexpr auto my_axis = LSMParam::Axis::X;
 
 	inline q15_t qsin;
 	inline q15_t qcos;

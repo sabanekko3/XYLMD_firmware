@@ -147,6 +147,12 @@ namespace SabaneLib::MotorMath{
 
 		SinCos sin_cos(q31_t rad)const{return {this->sin(rad),this->cos(rad)};}
 		SinCos sin_cos(float rad)const{return this->sin_cos(rad_to_q15(rad));}
+
+		UVW uvw_phase(float rad)const{
+			return {this->cos(rad),
+					this->cos(rad - static_cast<float>(2*M_PI)/3.0f),
+					this->cos(rad + static_cast<float>(2*M_PI)/3.0f)};
+		}
 	};
 
 
