@@ -32,7 +32,6 @@
 
 namespace LMDBoard{
 
-
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 
 	inline auto atan_enc = SabaneLib::ContinuableEncoder(16,1000.f);
@@ -58,8 +57,6 @@ namespace LMDBoard{
 		FDCAN_FLAG_RX_FIFO0_NEW_MESSAGE
 	};
 
-	inline constexpr float angle_to_rad = 2.0f*M_PI/(float)(1<<12);
-
 	inline constexpr auto my_axis = LSMParam::Axis::X;
 
 	inline q15_t qsin;
@@ -69,8 +66,7 @@ namespace LMDBoard{
 
 	inline int32_t atan_enc_bias = 0;
 
-	inline volatile uint16_t adc_val[4]={0};
-	inline volatile uint16_t enc_val[2]={0};
+	inline volatile uint16_t adc_val[3]={0};
 	inline volatile uint16_t vref_val = 0;
 }
 
