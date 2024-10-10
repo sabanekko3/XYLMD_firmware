@@ -21,6 +21,8 @@ namespace SabaneLib{
 	public:
 		virtual int32_t get_angle(void)const = 0;
 		virtual int32_t get_speed(void)const = 0; //bit per sec
+
+		virtual ~IEncoder(){}
 	};
 
 	//エンコーダーの連続化クラス
@@ -73,6 +75,8 @@ namespace SabaneLib{
 
 		void set_turn_count(int32_t _turn_count){turn_count = _turn_count;}
 		int32_t get_turn_count(void)const{return turn_count;}
+
+		virtual ~ContinuableEncoder(){}
 	};
 
 

@@ -20,7 +20,6 @@ namespace SabaneLib{
 		SinCosEncoder(float freq,std::function<q15_t(q15_t,q15_t)> _qatan)
 			:ContinuableEncoder(16,freq),
 			 qatan(_qatan){
-
 		}
 
 		int32_t update(q15_t cos,q15_t sin){
