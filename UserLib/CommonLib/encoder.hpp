@@ -20,9 +20,7 @@ namespace SabaneLib{
 	class IEncoder{
 	public:
 		virtual int32_t get_angle(void)const = 0;
-		virtual int32_t get_speed(void)const = 0; //bit per sec
-
-		virtual ~IEncoder(){}
+		virtual int32_t get_speed(void)const = 0;
 	};
 
 	//エンコーダーの連続化クラス
@@ -31,8 +29,8 @@ namespace SabaneLib{
 		const size_t resolution_bit;
 		const size_t resolution;
 
-		uint32_t angle;
-		uint32_t speed;
+		uint32_t angle = 0;
+		uint32_t speed = 0;
 		int32_t turn_count = 0;
 
 		const int32_t k_speed;

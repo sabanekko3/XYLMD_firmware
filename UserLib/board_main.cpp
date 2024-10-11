@@ -63,10 +63,11 @@ extern "C" void main_(void){
 	b::target_mm = 0.0f;
 	b::position_pid.set_limit(0.0f);
 
+	HAL_Delay(10);
 	while(HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin));
 	printf("start\r\n");
 
-	b::atan_enc_bias = b::atan_enc.update(b::qcos, b::qsin);
+	b::atan_enc_bias = b::atan_enc.get_angle();
 	b::position_pid.set_limit(0.3f);
 	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 

@@ -120,7 +120,7 @@ namespace SabaneLib::MotorMath{
 #endif
 		}
 
-#ifdef SIN_TABLE_COMPACT_MODEf
+#ifdef SIN_TABLE_COMPACT_MODE
 		float sin(q31_t rad)const{
 			size_t index = (rad >> (32-PERIOD_N)) & (PERIOD-1);
 			if(index >= PERIOD*3/4){

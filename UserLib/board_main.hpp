@@ -35,17 +35,7 @@ namespace LMDBoard{
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
-
-	//inline auto atan_enc = SabaneLib::ContinuableEncoder(16,1000.f);
-
-	inline auto atan_enc = SabaneLib::SinCosEncoder{
-		1000.f,
-		[](q15_t cos,q15_t sin)->q15_t{
-			cordic.start_atan2(static_cast<q15_t>(cos * 16),static_cast<q15_t>(sin * 16));
-			while(not cordic.is_avilable());
-			return cordic.read_ans();
-		}
-	};
+	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
