@@ -23,13 +23,13 @@ namespace SabaneLib{
 	};
 
 	namespace FdCanRxFifo{
-		inline constexpr auto no0 = FdCanRxFifoParams{
+		inline constexpr auto fifo0 = FdCanRxFifoParams{
 			FDCAN_RX_FIFO0,
 			FDCAN_FILTER_TO_RXFIFO0,
 			FDCAN_IT_RX_FIFO0_NEW_MESSAGE,
 			FDCAN_FLAG_RX_FIFO0_NEW_MESSAGE
 		};
-		inline constexpr auto no1 = FdCanRxFifoParams{
+		inline constexpr auto fifo1 = FdCanRxFifoParams{
 			FDCAN_RX_FIFO1,
 			FDCAN_FILTER_TO_RXFIFO1,
 			FDCAN_IT_RX_FIFO1_NEW_MESSAGE,
