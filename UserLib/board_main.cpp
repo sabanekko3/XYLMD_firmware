@@ -68,7 +68,7 @@ extern "C" void main_(void){
 	printf("start\r\n");
 
 	b::atan_enc_bias = b::atan_enc.get_angle();
-	b::position_pid.set_limit(0.3f);
+	b::position_pid.set_limit(0.15f);
 	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 
 	while(1){
@@ -96,8 +96,16 @@ extern "C" void main_(void){
 			  default:
 				  break;
 			  }
+		}
+		printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f,%d\r\n",
+				b::uvw_i.u,
+				b::uvw_i.v,
+				b::uvw_i.w,
+				b::dq_i.d,
+				b::dq_i.q,
+				__HAL_TIM_GET_COMPARE(&htim1, TIM_CHANNEL_2)
+		);
+		HAL_Delay(1);
 
-		  }else{
-		  }
 	}
 }

@@ -43,6 +43,12 @@ namespace SabaneLib::MotorMath{
 	////////////////////////////////
 	//Q31 format support funcitons//
 	////////////////////////////////
+	namespace Q31Def{
+		constexpr q31_t pi = 0x7FFF'FFFF; //厳密には0x8000'0000がpiだが-piと混ざり支障が出るため0x7FFF'FFFFとする
+		constexpr q31_t pi_2 = pi/2; // PI/2
+		constexpr q31_t pi_3 = pi/3; // PI/3
+	}
+
 	constexpr q31_t float_to_q31(float f){
 		constexpr float coef = static_cast<float>(0x8000'0000);
 		return static_cast<q31_t>( f * coef);
@@ -52,8 +58,6 @@ namespace SabaneLib::MotorMath{
 		constexpr float coef = 1.0f / static_cast<float>(0x8000'0000);
 		return static_cast<float>(q) * coef;
 	}
-
-	constexpr q31_t PI_Q31 = 0x7FFF'FFFF; //厳密には0x8000'0000がpiだが-piと混ざり支障が出るため0x7FFF'FFFFとする
 
 	constexpr q31_t rad_to_q31(float rad){ //-PI~PI
 		constexpr float coef = static_cast<float>(0x8000'0000)/M_PI;
@@ -74,6 +78,12 @@ namespace SabaneLib::MotorMath{
 	////////////////////////////////
 	//Q15 format support funcitons//
 	////////////////////////////////
+	namespace Q15Def{
+		constexpr q15_t pi = 0x7FFF; //厳密には0x8000がpiだが-piと混ざり支障が出るため0x7FFFとする
+		constexpr q31_t pi_2 = pi/2; // PI/2
+		constexpr q31_t pi_3 = pi/3; // PI/3
+	}
+
 	constexpr q15_t float_to_q15(float f){
 		constexpr float coef = static_cast<float>(0x8000);
 		return static_cast<q15_t>( f * coef);
@@ -83,8 +93,6 @@ namespace SabaneLib::MotorMath{
 		constexpr float coef = 1.0f / static_cast<float>(0x8000);
 		return static_cast<float>(q) *coef;
 	}
-
-	constexpr q15_t PI_Q15 = 0x7FFF; //厳密には0x8000がpiだが-piと混ざり支障が出るため0x7FFFとする
 
 	constexpr q15_t rad_to_q15(float rad){
 		constexpr float coef = static_cast<float>(0x8000)/(M_PI);
@@ -140,14 +148,19 @@ namespace SabaneLib::MotorMath{
 		}
 #endif
 
-		float cos(q15_t rad) const { return this->sin(static_cast<q15_t>(rad + PI_Q15/2));}
+		float cos(q15_t rad) const { return this->sin(static_cast<q15_t>(rad + Q15Def::pi_2));}
 
 		float sin(float rad) const { return this->sin(rad_to_q15(rad)); }
 		float cos(float rad) const  { return this->cos(rad_to_q15(rad)); }
 
-		SinCos sin_cos(q31_t rad)const{return {this->sin(rad),this->cos(rad)};}
+		SinCos sin_cos(q15_t rad)const{return {this->sin(rad),this->cos(rad)};}
 		SinCos sin_cos(float rad)const{return this->sin_cos(rad_to_q15(rad));}
 
+		UVW uvw_phase(q15_t rad)const{
+			return {this->cos(rad),
+					this->cos(rad - 2*Q15Def::pi_3),
+					this->cos(rad + 2*Q15Def::pi_3)};
+		}
 		UVW uvw_phase(float rad)const{
 			return {this->cos(rad),
 					this->cos(rad - static_cast<float>(2*M_PI)/3.0f),
@@ -157,23 +170,23 @@ namespace SabaneLib::MotorMath{
 
 
 
-//	void dq_to_uvw(DQ input,SinCos sincos,UVW &output){
-//		//inv park
-//		AB ab_data;
-//		arm_inv_park_f32(input.d,input.q,&ab_data.a,&ab_data.b,sincos.sin,sincos.cos);
-//
-//		//inv clarke
-//		arm_inv_clarke_f32(ab_data.a,ab_data.b,&output.u,&output.v);
-//		output.w = -output.u - output.v;
-//	}
-//
-//	void uvw_to_dq(UVW input,SinCos sincos,DQ &output){
-//		//clarke
-//		AB ab_data;
-//		arm_clarke_f32(input.u,input.v,&ab_data.a,&ab_data.b);
-//		//park
-//		arm_park_f32(ab_data.a,ab_data.b,&output.d,&output.q,sincos.sin,sincos.cos);
-//	}
+	inline void dq_to_uvw(DQ input,SinCos sincos,UVW &output){
+		//inv park
+		AB ab_data;
+		arm_inv_park_f32(input.d,input.q,&ab_data.a,&ab_data.b,sincos.sin,sincos.cos);
+
+		//inv clarke
+		arm_inv_clarke_f32(ab_data.a,ab_data.b,&output.u,&output.v);
+		output.w = -output.u - output.v;
+	}
+
+	inline void uvw_to_dq(UVW input,SinCos sincos,DQ &output){
+		//clarke
+		AB ab_data;
+		arm_clarke_f32(input.u,input.v,&ab_data.a,&ab_data.b);
+		//park
+		arm_park_f32(ab_data.a,ab_data.b,&output.d,&output.q,sincos.sin,sincos.cos);
+	}
 }
 
 

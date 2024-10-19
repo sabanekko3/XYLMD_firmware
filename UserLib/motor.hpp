@@ -19,11 +19,11 @@ namespace s = SabaneLib;
 namespace LMDLib{
 	class Motor{
 		s::PWMHard u,v,w;
-		std::function<s::MotorMath::UVW(float)> f;
+		std::function<s::MotorMath::SinCos(q15_t)> f;
 		const s::IEncoder &enc;
 
 	public:
-		Motor(s::PWMHard _u,s::PWMHard _v, s::PWMHard _w,std::function<s::MotorMath::UVW (float) > _f,const s::IEncoder &_enc)
+		Motor(s::PWMHard _u,s::PWMHard _v, s::PWMHard _w,std::function<s::MotorMath::SinCos(q15_t)>  _f,const s::IEncoder &_enc)
 			:u(_u),
 			 v(_v),
 			 w(_w),
@@ -41,12 +41,11 @@ namespace LMDLib{
 		}
 
 		void move(float power){
-			float rad = SabaneLib::MotorMath::q15_to_rad(enc.get_angle()) + (M_PI/2.0f)*(power>0.0f?1.0f:-1.0f);
-
-			s::MotorMath::UVW uvw_phase = f(rad);
-			u.out(uvw_phase.u*0.4f*abs(power) + 0.5f);
-			v.out(uvw_phase.v*0.4f*abs(power) + 0.5f);
-			w.out(uvw_phase.w*0.4f*abs(power) + 0.5f);
+			SabaneLib::MotorMath::UVW tmp;
+			SabaneLib::MotorMath::dq_to_uvw({0, power},f(static_cast<q15_t>(enc.get_angle())),tmp);
+			u.out(tmp.u*0.4f + 0.5f);
+			v.out(tmp.v*0.4f + 0.5f);
+			w.out(tmp.w*0.4f + 0.5f);
 		}
 	};
 }

@@ -41,7 +41,7 @@ namespace LMDBoard{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_3},
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_1},
-		[](float r)->SabaneLib::MotorMath::UVW {return table.uvw_phase(r);},
+		[](q15_t r)->SabaneLib::MotorMath::SinCos {return table.sin_cos(r);},
 		atan_enc
 	};
 
@@ -53,16 +53,16 @@ namespace LMDBoard{
 	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
 		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),
 		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),
-		FDCAN_RX_FIFO0,
-		FDCAN_FILTER_TO_RXFIFO0,
-		FDCAN_IT_RX_FIFO0_NEW_MESSAGE,
-		FDCAN_FLAG_RX_FIFO0_NEW_MESSAGE
+		SabaneLib::FdCanRxFifo::no0
 	};
 
 	inline constexpr auto my_axis = LSMParam::Axis::X;
 
 	inline q15_t qsin;
 	inline q15_t qcos;
+
+	inline SabaneLib::MotorMath::UVW uvw_i;
+	inline SabaneLib::MotorMath::DQ dq_i;
 
 	inline float target_mm;
 

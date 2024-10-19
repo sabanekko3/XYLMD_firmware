@@ -73,11 +73,11 @@ public:
 	}
 
 	void set_i_gain(float _ki){
-		ki = _ki;
+		ki = _ki/pid_freq;
 	}
 
 	void set_d_gain(float _kd){
-		kd = _kd;
+		kd = _kd*pid_freq;
 	}
 
 	void set_limit(float _limit_max){
