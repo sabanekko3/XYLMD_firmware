@@ -15,29 +15,47 @@
 
 namespace SabaneLib{
 
+	struct FdCanRxFifoParams{
+		uint32_t no;
+		uint32_t filter;
+		uint32_t it;
+		uint32_t it_buff;
+	};
+
+	namespace FdCanRxFifo{
+		inline constexpr auto no0 = FdCanRxFifoParams{
+			FDCAN_RX_FIFO0,
+			FDCAN_FILTER_TO_RXFIFO0,
+			FDCAN_IT_RX_FIFO0_NEW_MESSAGE,
+			FDCAN_FLAG_RX_FIFO0_NEW_MESSAGE
+		};
+		inline constexpr auto no1 = FdCanRxFifoParams{
+			FDCAN_RX_FIFO1,
+			FDCAN_FILTER_TO_RXFIFO1,
+			FDCAN_IT_RX_FIFO1_NEW_MESSAGE,
+			FDCAN_FLAG_RX_FIFO1_NEW_MESSAGE
+		};
+	}
+
+
 	class FdCanComm:public ICan{
 		FDCAN_HandleTypeDef *fdcan;
-		const uint32_t rx_fifo;
-		const uint32_t rx_filter_fifo;
-		const uint32_t rx_fifo_it;
-		const uint32_t rx_fifo_it_buff;
+
+		const FdCanRxFifoParams rx_fifo;
 
 		std::unique_ptr<IRingBuffer<CanFrame> > rx_buff;
 		std::unique_ptr<IRingBuffer<CanFrame> > tx_buff;
 	public:
-		FdCanComm(FDCAN_HandleTypeDef *_fdcan,std::unique_ptr<IRingBuffer<CanFrame>> _rx_buff,std::unique_ptr<IRingBuffer<CanFrame>> &&_tx_buff,uint32_t _rx_fifo,uint32_t _rx_filter_fifo,uint32_t _rx_fifo_it,uint32_t _rx_fifo_it_buff)
+		FdCanComm(FDCAN_HandleTypeDef *_fdcan,std::unique_ptr<IRingBuffer<CanFrame>> _rx_buff,std::unique_ptr<IRingBuffer<CanFrame>> &&_tx_buff,FdCanRxFifoParams _rx_fifo)
 			:fdcan(_fdcan),
 		 	 rx_buff(std::move(_rx_buff)),
 			 tx_buff(std::move(_tx_buff)),
-			 rx_fifo(_rx_fifo),
-			 rx_filter_fifo(_rx_filter_fifo),
-			 rx_fifo_it(_rx_fifo_it),
-			 rx_fifo_it_buff(_rx_fifo_it_buff){
+			 rx_fifo(_rx_fifo){
 		}
 
 		void start(void){
 			HAL_FDCAN_Start(fdcan);
-			HAL_FDCAN_ActivateNotification(fdcan, rx_fifo_it, rx_fifo_it_buff);
+			HAL_FDCAN_ActivateNotification(fdcan, rx_fifo.it, rx_fifo.it_buff);
 			HAL_FDCAN_ActivateNotification(fdcan, FDCAN_IT_TX_COMPLETE, FDCAN_TX_BUFFER0 | FDCAN_TX_BUFFER1 | FDCAN_TX_BUFFER2);
 		}
 
@@ -110,7 +128,7 @@ namespace SabaneLib{
 		FDCAN_RxHeaderTypeDef rx_header;
 		CanFrame rx_frame;
 
-		HAL_FDCAN_GetRxMessage(fdcan, rx_fifo, &rx_header, rx_frame.data);
+		HAL_FDCAN_GetRxMessage(fdcan, rx_fifo.no, &rx_header, rx_frame.data);
 
 		rx_frame.data_length = rx_header.DataLength>>16;
 		rx_frame.is_remote = rx_header.RxFrameType == FDCAN_REMOTE_FRAME ? true : false;
@@ -125,7 +143,7 @@ namespace SabaneLib{
 		filter.IdType = is_ext_filter?FDCAN_EXTENDED_ID:FDCAN_STANDARD_ID;
 		filter.FilterIndex = filter_no;
 		filter.FilterType = FDCAN_FILTER_MASK;
-		filter.FilterConfig = rx_filter_fifo;
+		filter.FilterConfig = rx_fifo.filter;
 		filter.FilterID1 = 0x000;
 		filter.FilterID2 = 0x000;
 
