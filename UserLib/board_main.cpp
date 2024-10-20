@@ -26,7 +26,21 @@ static float data_select(LSMParam::Axis xy,SabaneLib::ByteReader &r){
 	return 0.0f;
 }
 
+extern "C" int _write(int file, char *ptr, int len) {
+	HAL_UART_Transmit(&huart2, (uint8_t*) ptr, len,100);
+	return len;
+}
 
+static void print_param(void){
+	printf("%4.3f,%4.3f,%4.3f,%4.3f,%d\r\n",
+			b::target_i.d,
+			b::target_i.q,
+			b::dq_i.d,
+			b::dq_i.q,
+			__HAL_TIM_GET_COMPARE(&htim1, TIM_CHANNEL_2)
+	);
+	HAL_Delay(1);
+}
 
 extern "C" void main_(void){
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
@@ -64,7 +78,7 @@ extern "C" void main_(void){
 	b::PIDIns::position.set_limit(0.0f);
 
 	HAL_Delay(10);
-//	while(HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin));
+	while(HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin));
 
 	b::atan_enc_bias = b::atan_enc.get_angle();
 	b::PIDIns::position.set_limit(4.0f);
@@ -96,14 +110,8 @@ extern "C" void main_(void){
 				  break;
 			  }
 		}
-		printf("%4.3f,%4.3f,%4.3f,%4.3f,%d\r\n",
-				b::target_i.d,
-				b::target_i.q,
-				b::dq_i.d,
-				b::dq_i.q,
-				__HAL_TIM_GET_COMPARE(&htim1, TIM_CHANNEL_2)
-		);
-		HAL_Delay(1);
+
+		//print_param();
 
 	}
 }

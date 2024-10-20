@@ -8,16 +8,6 @@
 #ifndef BOARD_MAIN_HPP_
 #define BOARD_MAIN_HPP_
 
-#include "main.h"
-#include "adc.h"
-#include "cordic.h"
-#include "fdcan.h"
-#include "i2c.h"
-#include "opamp.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-
 #include "board_params.hpp"
 #include "motor.hpp"
 
@@ -30,6 +20,18 @@
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
 
+#include "main.h"
+#include "adc.h"
+#include "cordic.h"
+#include "fdcan.h"
+#include "i2c.h"
+#include "opamp.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
+
+#include <stdio.h>
+
 namespace LMDBoard{
 
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
@@ -38,9 +40,9 @@ namespace LMDBoard{
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,9000.f};
 
 	inline auto motor = LMDLib::Motor{
-		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
-		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_3},
-		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_1},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2,true},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_3,true},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_1,true},
 		[](q15_t r)->SabaneLib::MotorMath::SinCos {return table.sin_cos(r);},
 		atan_enc
 	};

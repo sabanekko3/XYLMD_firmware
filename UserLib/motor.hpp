@@ -8,6 +8,8 @@
 #ifndef MOTOR_HPP_
 #define MOTOR_HPP_
 
+#include "main.h"
+
 #include "CommonLib/pwm.hpp"
 #include "CommonLib/math.hpp"
 #include "CommonLib/encoder.hpp"
@@ -35,9 +37,6 @@ namespace LMDLib{
 			u.start();
 			v.start();
 			w.start();
-			HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);
-			HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_2);
-			HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_3);
 		}
 
 		void move(float power){

@@ -28,10 +28,12 @@ namespace SabaneLib{
 		TIM_HandleTypeDef *tim;
 		const uint32_t ch;
 
+		const bool is_complementary;
 	public:
-		PWMHard(TIM_HandleTypeDef *_tim,uint32_t _ch)
+		PWMHard(TIM_HandleTypeDef *_tim,uint32_t _ch,bool _is_complementary = false)
 			: tim(_tim),
-			  ch(_ch){
+			  ch(_ch),
+			  is_complementary(_is_complementary){
 		}
 
 		void out(float val) override{
@@ -48,11 +50,18 @@ namespace SabaneLib{
 
 		void start(void){
 			HAL_TIM_PWM_Start(tim, ch);
+			if(is_complementary){
+				HAL_TIMEx_PWMN_Start(tim,ch);
+			}
+
 			__HAL_TIM_SET_COMPARE(tim, ch,0);
 		}
 
 		void stop(void){
 			HAL_TIM_PWM_Stop(tim, ch);
+			if(is_complementary){
+				HAL_TIMEx_PWMN_Stop(tim,ch);
+			}
 			__HAL_TIM_SET_COMPARE(tim, ch,0);
 		}
 
