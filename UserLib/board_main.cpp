@@ -61,14 +61,13 @@ extern "C" void main_(void){
 	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 
 	b::target_mm = 0.0f;
-	b::position_pid.set_limit(0.0f);
+	b::PIDIns::position.set_limit(0.0f);
 
 	HAL_Delay(10);
-	while(HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin));
-	printf("start\r\n");
+//	while(HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin));
 
 	b::atan_enc_bias = b::atan_enc.get_angle();
-	b::position_pid.set_limit(0.15f);
+	b::PIDIns::position.set_limit(4.0f);
 	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 
 	while(1){
@@ -82,25 +81,24 @@ extern "C" void main_(void){
 				  b::target_mm = data_select(b::my_axis,reader);
 				  break;
 			  case LSMParam::Config::POWER:
-				  b::position_pid.set_limit(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_limit(data_select(b::my_axis,reader));
 				  break;
 			  case LSMParam::Config::GAIN_P:
-				  b::position_pid.set_p_gain(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_p_gain(data_select(b::my_axis,reader));
 				  break;
 			  case LSMParam::Config::GAIN_I:
-				  b::position_pid.set_i_gain(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_i_gain(data_select(b::my_axis,reader));
 				  break;
 			  case LSMParam::Config::GAIN_D:
-				  b::position_pid.set_d_gain(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_d_gain(data_select(b::my_axis,reader));
 				  break;
 			  default:
 				  break;
 			  }
 		}
-		printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f,%d\r\n",
-				b::uvw_i.u,
-				b::uvw_i.v,
-				b::uvw_i.w,
+		printf("%4.3f,%4.3f,%4.3f,%4.3f,%d\r\n",
+				b::target_i.d,
+				b::target_i.q,
 				b::dq_i.d,
 				b::dq_i.q,
 				__HAL_TIM_GET_COMPARE(&htim1, TIM_CHANNEL_2)

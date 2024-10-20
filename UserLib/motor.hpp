@@ -47,6 +47,14 @@ namespace LMDLib{
 			v.out(tmp.v*0.4f + 0.5f);
 			w.out(tmp.w*0.4f + 0.5f);
 		}
+
+		void move(const SabaneLib::MotorMath::DQ &dq_v){
+			SabaneLib::MotorMath::UVW tmp;
+			SabaneLib::MotorMath::dq_to_uvw(dq_v,f(static_cast<q15_t>(enc.get_angle())),tmp);
+			u.out(tmp.u*0.4f + 0.5f);
+			v.out(tmp.v*0.4f + 0.5f);
+			w.out(tmp.w*0.4f + 0.5f);
+		}
 	};
 }
 

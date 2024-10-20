@@ -20,24 +20,24 @@
 
 namespace SabaneLib::MotorMath{
 	struct DQ{
-		float d;
-		float q;
+		float d = 0.0f;
+		float q = 0.0f;
 	};
 
 	struct AB{
-		float a;
-		float b;
+		float a = 0.0f;
+		float b = 0.0f;
 	};
 
 	struct UVW{
-		float u;
-		float v;
-		float w;
+		float u = 0.0f;
+		float v = 0.0f;
+		float w = 0.0f;
 	};
 
 	struct SinCos{
-		float sin;
-		float cos;
+		float sin = 0.0f;
+		float cos = 0.0f;
 	};
 
 	////////////////////////////////
@@ -168,23 +168,26 @@ namespace SabaneLib::MotorMath{
 		}
 	};
 
+	inline void uvw_to_ab(const UVW &input,AB &output){
+		arm_clarke_f32(input.u,input.v,&output.a,&output.b);
+	}
 
+	inline void ab_to_dq(const AB &input,const SinCos &sincos,DQ &output){
+		arm_park_f32(input.a,input.b,&output.d,&output.q,sincos.sin,sincos.cos);
+	}
 
 	inline void dq_to_uvw(DQ input,SinCos sincos,UVW &output){
-		//inv park
 		AB ab_data;
-		arm_inv_park_f32(input.d,input.q,&ab_data.a,&ab_data.b,sincos.sin,sincos.cos);
 
-		//inv clarke
+		arm_inv_park_f32(input.d,input.q,&ab_data.a,&ab_data.b,sincos.sin,sincos.cos);
 		arm_inv_clarke_f32(ab_data.a,ab_data.b,&output.u,&output.v);
 		output.w = -output.u - output.v;
 	}
 
 	inline void uvw_to_dq(UVW input,SinCos sincos,DQ &output){
-		//clarke
 		AB ab_data;
+
 		arm_clarke_f32(input.u,input.v,&ab_data.a,&ab_data.b);
-		//park
 		arm_park_f32(ab_data.a,ab_data.b,&output.d,&output.q,sincos.sin,sincos.cos);
 	}
 }

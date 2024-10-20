@@ -35,7 +35,7 @@ namespace LMDBoard{
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
-	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
+	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,9000.f};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
@@ -45,10 +45,23 @@ namespace LMDBoard{
 		atan_enc
 	};
 
-	inline auto position_pid = SabaneLib::PIDBuilder(1000.0f)
-			.set_gain(0.000'01f, 0.000'007f, 0.0f)
-			.set_limit(0.1f)
-			.build();
+	namespace PIDIns{
+		inline auto position = SabaneLib::PIDBuilder(9000.0f)
+				.set_gain(0.000'1f, 0.000'1f, 0.0f)
+				.set_limit(0.5f)
+				.build();
+
+		inline auto d_current = SabaneLib::PIDBuilder(9000.0f)
+				.set_gain(0.1f, 0.8f, 0.0f)
+				.set_limit(1.0f)
+				.build();
+
+		inline auto q_current = SabaneLib::PIDBuilder(9000.0f)
+				.set_gain(0.1f, 0.8f, 0.0f)
+				.set_limit(1.0f)
+				.build();
+	}
+
 
 	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
 		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),
@@ -63,6 +76,8 @@ namespace LMDBoard{
 
 	inline SabaneLib::MotorMath::UVW uvw_i;
 	inline SabaneLib::MotorMath::DQ dq_i;
+
+	inline SabaneLib::MotorMath::DQ target_i;
 
 	inline float target_mm;
 

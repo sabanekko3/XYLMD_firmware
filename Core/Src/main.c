@@ -68,10 +68,6 @@ int _write(int file, char *ptr, int len) {
 	return len;
 }
 
-
-
-
-
 /* USER CODE END 0 */
 
 /**
@@ -127,31 +123,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
-//	  target_mm = 20.0f;
-//	  HAL_Delay(500);
-//	  target_mm = 70.0f;
-//	  HAL_Delay(500);
-//	  target_mm = 130.0f;
-//	  HAL_Delay(500);
-
-//	  enc.read_start();
-//
-//	  float enc_mm = (enc.get_angle()-enc_bias)*enc_to_mm;
-//	  float atan_mm = (atan_enc.get_angle()-atan_enc_bias)*q15rad_to_mm;
-//
-//	  printf("%4.3f,%4.3f,%4.3f,%4.3f,%d,%d\r\n",
-//			  enc_mm,
-//			  atan_mm,
-//			 enc_mm-atan_mm,
-//			  SabaneLib::MotorMath::q15_to_rad(atan_enc.get_angle()) / M_PI,
-//			  ::qcos,
-//			  ::qsin
-//	  );
-
-
-
   }
   /* USER CODE END 3 */
 }
