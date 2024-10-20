@@ -40,9 +40,9 @@ namespace LMDBoard{
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,9000.f};
 
 	inline auto motor = LMDLib::Motor{
-		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2,true},
-		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_3,true},
-		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_1,true},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_3},
+		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_1},
 		[](q15_t r)->SabaneLib::MotorMath::SinCos {return table.sin_cos(r);},
 		atan_enc
 	};
