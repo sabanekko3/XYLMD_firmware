@@ -8,16 +8,19 @@
 #ifndef ENCODER_HPP_
 #define ENCODER_HPP_
 
+#include "main.h"
+
 #include <numeric>
 #include <cmath>
 #include <iterator>
+#include <functional>
 
 namespace SabaneLib{
 
 	class IEncoder{
 	public:
 		virtual int32_t get_angle(void)const = 0;
-		virtual int32_t get_speed(void)const = 0; //bit per sec
+		virtual int32_t get_speed(void)const = 0;
 	};
 
 	//エンコーダーの連続化クラス
@@ -26,8 +29,8 @@ namespace SabaneLib{
 		const size_t resolution_bit;
 		const size_t resolution;
 
-		uint32_t angle;
-		uint32_t speed;
+		uint32_t angle = 0;
+		uint32_t speed = 0;
 		int32_t turn_count = 0;
 
 		const int32_t k_speed;
@@ -45,7 +48,7 @@ namespace SabaneLib{
 		int32_t get_angle(void)const override{return angle;}
 		int32_t get_speed(void)const override{return speed;}
 
-		int32_t update(uint32_t _angle){
+		virtual int32_t update(uint32_t _angle){
 			int32_t new_angle = _angle&(resolution-1);
 
 			int32_t angle_top_2 = (new_angle>>(resolution_bit-2))&0b11;
@@ -70,37 +73,11 @@ namespace SabaneLib{
 
 		void set_turn_count(int32_t _turn_count){turn_count = _turn_count;}
 		int32_t get_turn_count(void)const{return turn_count;}
+
+		virtual ~ContinuableEncoder(){}
 	};
 
 
-	//AS5600による制御
-	class AS5600State:public ContinuableEncoder{
-	private:
-		static constexpr uint16_t as5600_id = 0x36;
-		static constexpr size_t as5600_resolution = 12;
-
-		I2C_HandleTypeDef* i2c;
-
-		uint8_t enc_val[2] = {0};
-
-		const int32_t inv = 1;
-
-	public:
-		AS5600State(I2C_HandleTypeDef* _i2c,float _freq,bool is_inv = false)
-			:i2c(_i2c),
-			 ContinuableEncoder(as5600_resolution,_freq),
-			 inv(is_inv?-1:1){
-		}
-
-		void read_start(void){
-			HAL_I2C_Mem_Read_IT(i2c, as5600_id<<1, 0x0c, I2C_MEMADD_SIZE_8BIT, enc_val, 2);
-		}
-
-		void i2c_rx_interrupt_task(void){
-			uint16_t raw_angle = enc_val[0]<<8 | enc_val[1];
-			update(raw_angle);
-		}
-	};
 }
 
 #endif /* ENCODER_HPP_ */

@@ -16,6 +16,8 @@ namespace SabaneLib{
 	class IPWM{
 	public:
 		virtual void out(float val) = 0;
+
+		virtual ~IPWM(){}
 	};
 
 	////////////////////////////////////////////////////////////
