@@ -71,8 +71,8 @@ extern "C" void main_(void){
 	});
 
 	//CAN初期化
-	HAL_GPIO_WritePin(CAN_R_GPIO_Port,CAN_R_Pin,GPIO_PIN_SET);
-	HAL_GPIO_WritePin(CAN_SHDN_GPIO_Port,CAN_SHDN_Pin,GPIO_PIN_RESET);
+	LL_GPIO_SetOutputPin(CAN_R_GPIO_Port,CAN_R_Pin);
+	LL_GPIO_ResetOutputPin(CAN_SHDN_GPIO_Port,CAN_SHDN_Pin);
 	b::can.start();
 	b::can.set_filter_free(0);
 
@@ -89,11 +89,14 @@ extern "C" void main_(void){
 	HAL_Delay(1);//念のため
 	b::atan_enc_bias = b::atan_enc.get_angle();
 
+	b::led.play(SabaneLib::LEDPattern::ok);
+
 	while(1){
 
 		if(not HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin)){
 			b::atan_enc_bias = b::atan_enc.get_angle();
 			b::PIDIns::position.set_limit(4.0f);
+			b::led.play(SabaneLib::LEDPattern::setting);
 			//move_test();
 		}
 

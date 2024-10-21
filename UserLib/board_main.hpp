@@ -68,6 +68,8 @@ namespace LMDBoard{
 		SabaneLib::FdCanRxFifo[0]
 	};
 
+	inline auto led = SabaneLib::LEDLLGpio{LED_GPIO_Port,LED_Pin};
+
 	inline constexpr auto my_axis = LSMParam::Axis::Y;
 
 	inline q15_t qsin;
