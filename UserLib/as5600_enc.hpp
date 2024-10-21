@@ -14,7 +14,7 @@
 
 #include "encoder.hpp"
 
-namespace SabaneLib{
+namespace LMDLib{
 	//AS5600による制御
 	class AS5600State:public ContinuableEncoder{
 	private:

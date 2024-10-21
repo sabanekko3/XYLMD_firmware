@@ -34,7 +34,7 @@ namespace SabaneLib{
 		int32_t turn_count = 0;
 
 		const int32_t k_speed;
-		int32_t angle_buff[4];
+		int32_t angle_buff[16];
 		uint32_t head = 0;
 		int32_t angle_sum_old = 0;
 

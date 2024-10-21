@@ -10,9 +10,10 @@
 namespace b = LMDBoard;
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs){
-	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
+	b::led.play(SabaneLib::LEDPattern::ok);
 	b::can.rx_interrupt_task();
 }
+
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes){
 	b::can.tx_interrupt_task();
 }
@@ -77,9 +78,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == &htim17){
-//		constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
-//		float target_angle = b::target_mm * mm_to_q15rad;
-//		b::motor.move(b::position_pid(target_angle,b::atan_enc.get_angle()-b::atan_enc_bias));
+		b::led.update();
 	}
 }
 

@@ -30,7 +30,6 @@ namespace SabaneLib{
 		ByteReader reader(void)const{
 			return ByteReader(data,sizeof(data));
 		}
-
 	};
 
 	enum class FilterMode{

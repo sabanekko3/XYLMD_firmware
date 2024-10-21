@@ -24,6 +24,4 @@ namespace LSMParam{
 	};
 }
 
-
-
 #endif /* BOARD_PARAMS_HPP_ */

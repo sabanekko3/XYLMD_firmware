@@ -12,14 +12,14 @@
 namespace SabaneLib::LEDPattern{
 
 	inline const LEDState ok[] = {
-		{0.2f,100},
-		{0.0f,100},
+		{1.0f,10},
+		{0.0f,10},
 		end
 	};
-	inline const LEDState error[]={
-		{0.2f,100},
+	inline const LEDState setting[]={
+		{1.0f,100},
 		{0.0f,100},
-		{0.2f,700},
+		{1.0f,700},
 		{0.0f,100},
 		end
 	};
