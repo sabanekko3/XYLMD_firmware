@@ -11,7 +11,7 @@
 #include "main.h"
 
 #include "CommonLib/pwm.hpp"
-#include "CommonLib/math.hpp"
+#include "CommonLib/MotorMath/motor_math.hpp"
 #include "CommonLib/encoder.hpp"
 
 #include <functional>
@@ -21,16 +21,12 @@ namespace s = SabaneLib;
 namespace LMDLib{
 	class Motor{
 		s::PWMHard u,v,w;
-		std::function<s::MotorMath::SinCos(q15_t)> f;
-		const s::IEncoder &enc;
 
 	public:
-		Motor(s::PWMHard _u,s::PWMHard _v, s::PWMHard _w,std::function<s::MotorMath::SinCos(q15_t)>  _f,const s::IEncoder &_enc)
+		Motor(s::PWMHard _u,s::PWMHard _v, s::PWMHard _w)
 			:u(_u),
 			 v(_v),
-			 w(_w),
-			 f(_f),
-			 enc(_enc){
+			 w(_w){
 		}
 
 		void start(void){
@@ -39,17 +35,15 @@ namespace LMDLib{
 			w.start();
 		}
 
-		void move(float power){
-			SabaneLib::MotorMath::UVW tmp;
-			SabaneLib::MotorMath::dq_to_uvw({0, power},f(static_cast<q15_t>(enc.get_angle())),tmp);
+		void move(float power, SabaneLib::MotorMath::SinCos sc){
+			SabaneLib::MotorMath::UVW tmp = SabaneLib::MotorMath::dq_to_uvw({0, power},sc);
 			u.out(tmp.u*0.4f + 0.5f);
 			v.out(tmp.v*0.4f + 0.5f);
 			w.out(tmp.w*0.4f + 0.5f);
 		}
 
-		void move(const SabaneLib::MotorMath::DQ &dq_v){
-			SabaneLib::MotorMath::UVW tmp;
-			SabaneLib::MotorMath::dq_to_uvw(dq_v,f(static_cast<q15_t>(enc.get_angle())),tmp);
+		void move(SabaneLib::MotorMath::DQ dq_v, SabaneLib::MotorMath::SinCos sc){
+			SabaneLib::MotorMath::UVW tmp = SabaneLib::MotorMath::dq_to_uvw(dq_v,sc);
 			u.out(tmp.u*0.4f + 0.5f);
 			v.out(tmp.v*0.4f + 0.5f);
 			w.out(tmp.w*0.4f + 0.5f);

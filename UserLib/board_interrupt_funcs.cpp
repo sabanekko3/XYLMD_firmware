@@ -55,19 +55,19 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		b::target_i.q = b::PIDIns::position(target_angle, b::atan_enc.get_angle() - b::atan_enc_bias);
 
 		//current control loop
-		SabaneLib::MotorMath::AB ab_i;
-		SabaneLib::MotorMath::uvw_to_ab(b::uvw_i, ab_i);
+		SabaneLib::MotorMath::AB ab_i = SabaneLib::MotorMath::uvw_to_ab(b::uvw_i);
 
 		//TODO:delete while loop
 		while(not b::cordic.is_avilable()){}
 
 		b::atan_enc.update(b::cordic.read_ans());
-		SabaneLib::MotorMath::ab_to_dq(ab_i, b::table.sin_cos(static_cast<q15_t>(b::atan_enc.get_angle())), b::dq_i);
+		b::dq_i = SabaneLib::MotorMath::ab_to_dq(ab_i, b::table.sin_cos(static_cast<q15_t>(b::atan_enc.get_angle())));
 
-		b::motor.move({
-			b::PIDIns::d_current(b::target_i.d,b::dq_i.d),
-			b::PIDIns::q_current(b::target_i.q,b::dq_i.q)
-		});
+		b::motor.move(
+				{b::PIDIns::d_current(b::target_i.d,b::dq_i.d),
+					b::PIDIns::q_current(b::target_i.q,b::dq_i.q)},
+				b::table.sin_cos(static_cast<q15_t>(b::atan_enc.get_angle()))
+		);
 
 		adc_flag = 0;
 	}
