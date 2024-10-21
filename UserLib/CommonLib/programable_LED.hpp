@@ -24,7 +24,10 @@ namespace SabaneLib{
 		virtual bool is_playing(void) = 0;
 	};
 
-	//LED control with hardware pwm
+	/////////////////////////////////
+	//LED control with hardware pwm//
+	/////////////////////////////////
+#ifdef HAL_TIM_MODULE_ENABLED
 	class LEDPWMHard:public ILED,public PWMHard{
 	private:
 		const LEDState *playing_pattern = nullptr;
@@ -69,9 +72,13 @@ namespace SabaneLib{
 		void out_weak(float val){
 			if(not is_playing()) out(val);
 		}
-
 	};
+#endif
 
+	////////////////////////////////
+	//LED control with GPIO LL Lib//
+	////////////////////////////////
+#ifdef STM32G4xx_LL_GPIO_H
 	class LEDLLGpio:public ILED{
 	private:
 		GPIO_TypeDef *port;
@@ -122,7 +129,12 @@ namespace SabaneLib{
 			}
 		}
 	};
+#endif //STM32G4xx_LL_GPIO_H
 
+	/////////////////////////////////
+	//LED control with GPIO HAL Lib//
+	/////////////////////////////////
+#ifdef STM32G4xx_HAL_GPIO_H
 	class LEDHALGpio:public ILED{
 	private:
 		GPIO_TypeDef *port;
@@ -167,7 +179,7 @@ namespace SabaneLib{
 			}
 		}
 	};
-
+#endif //STM32G4xx_HAL_GPIO_H
 }
 
 
