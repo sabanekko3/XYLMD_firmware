@@ -78,7 +78,7 @@ namespace LMDBoard{
 
 	inline SabaneLib::MotorMath::DQ target_i;
 
-	inline float target_mm;
+	inline float target_mm = 0.0f;
 
 	inline int32_t atan_enc_bias = 0;
 

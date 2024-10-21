@@ -14,8 +14,9 @@ namespace LSMParam{
 		Y
 	};
 
-	enum class Config{
-		POS,
+	enum class Command{
+		SET_ORIGIN,
+		TARGET_POS,
 		POWER,
 		GAIN_P,
 		GAIN_I,

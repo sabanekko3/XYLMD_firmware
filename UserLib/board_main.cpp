@@ -42,6 +42,17 @@ static void print_param(void){
 	HAL_Delay(1);
 }
 
+static void move_test(void){
+	while(1){
+		b::target_mm = 0.0f;
+		HAL_Delay(500);
+		b::target_mm = 50.0f;
+		HAL_Delay(500);
+		b::target_mm = 100.0f;
+		HAL_Delay(500);
+	}
+}
+
 extern "C" void main_(void){
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
@@ -49,8 +60,6 @@ extern "C" void main_(void){
 	HAL_OPAMP_Start(&hopamp1);
 	HAL_OPAMP_Start(&hopamp2);
 	HAL_OPAMP_Start(&hopamp3);
-
-	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 
 	LMDBoard::table.generate([](float rad)->float{
 	  b::cordic.start_sincos(rad);
@@ -72,38 +81,41 @@ extern "C" void main_(void){
 	HAL_ADC_Start(&hadc2);
 	HAL_ADCEx_InjectedStart_IT(&hadc2);
 
-	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
-
+	HAL_Delay(1);
 	b::target_mm = 0.0f;
 	b::PIDIns::position.set_limit(0.0f);
 
-	HAL_Delay(10);
-	while(HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin));
-
 	b::atan_enc_bias = b::atan_enc.get_angle();
-	b::PIDIns::position.set_limit(4.0f);
-	HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
 
 	while(1){
+		if(not HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin)){
+			b::atan_enc_bias = b::atan_enc.get_angle();
+			b::PIDIns::position.set_limit(4.0f);
+			//move_test();
+		}
+
 		if(b::can.rx_available()){
 			  SabaneLib::CanFrame rx_frame;
 			  b::can.rx(rx_frame);
 			  auto reader = rx_frame.reader();
 
-			  switch(static_cast<LSMParam::Config>(rx_frame.id)){
-			  case LSMParam::Config::POS:
+			  switch(static_cast<LSMParam::Command>(rx_frame.id)){
+			  case LSMParam::Command::SET_ORIGIN:
+				  b::atan_enc_bias = b::atan_enc.get_angle();
+				  break;
+			  case LSMParam::Command::TARGET_POS:
 				  b::target_mm = data_select(b::my_axis,reader);
 				  break;
-			  case LSMParam::Config::POWER:
+			  case LSMParam::Command::POWER:
 				  b::PIDIns::position.set_limit(data_select(b::my_axis,reader));
 				  break;
-			  case LSMParam::Config::GAIN_P:
+			  case LSMParam::Command::GAIN_P:
 				  b::PIDIns::position.set_p_gain(data_select(b::my_axis,reader));
 				  break;
-			  case LSMParam::Config::GAIN_I:
+			  case LSMParam::Command::GAIN_I:
 				  b::PIDIns::position.set_i_gain(data_select(b::my_axis,reader));
 				  break;
-			  case LSMParam::Config::GAIN_D:
+			  case LSMParam::Command::GAIN_D:
 				  b::PIDIns::position.set_d_gain(data_select(b::my_axis,reader));
 				  break;
 			  default:
