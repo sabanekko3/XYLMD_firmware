@@ -54,6 +54,7 @@ static void move_test(void){
 }
 
 extern "C" void main_(void){
+	//アナログ系初期化
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
 
@@ -61,19 +62,21 @@ extern "C" void main_(void){
 	HAL_OPAMP_Start(&hopamp2);
 	HAL_OPAMP_Start(&hopamp3);
 
+	//テーブル初期化
 	LMDBoard::table.generate([](float rad)->float{
 	  b::cordic.start_sincos(rad);
 	  while(not b::cordic.is_avilable());
 	  return b::cordic.get_sincos().sin;
 	});
 
+	//CAN初期化
 	HAL_GPIO_WritePin(CAN_R_GPIO_Port,CAN_R_Pin,GPIO_PIN_SET);
 	HAL_GPIO_WritePin(CAN_SHDN_GPIO_Port,CAN_SHDN_Pin,GPIO_PIN_RESET);
 	b::can.start();
 	b::can.set_filter_free(0);
 
+	//タイマー系
 	b::motor.start();
-
 	HAL_TIM_Base_Start_IT(&htim17);
 
 	HAL_ADC_Start(&hadc1);
@@ -81,13 +84,12 @@ extern "C" void main_(void){
 	HAL_ADC_Start(&hadc2);
 	HAL_ADCEx_InjectedStart_IT(&hadc2);
 
-	HAL_Delay(1);
-	b::target_mm = 0.0f;
-	b::PIDIns::position.set_limit(0.0f);
-
+	//制御用初期化
+	HAL_Delay(1);//念のため
 	b::atan_enc_bias = b::atan_enc.get_angle();
 
 	while(1){
+
 		if(not HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin)){
 			b::atan_enc_bias = b::atan_enc.get_angle();
 			b::PIDIns::position.set_limit(4.0f);

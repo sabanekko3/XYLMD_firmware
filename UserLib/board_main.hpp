@@ -47,7 +47,7 @@ namespace LMDBoard{
 	namespace PIDIns{
 		inline auto position = SabaneLib::PIDBuilder(9000.0f)
 				.set_gain(0.000'1f, 0.000'1f, 0.0f)
-				.set_limit(0.5f)
+				.set_limit(0.0f)
 				.build();
 
 		inline auto d_current = SabaneLib::PIDBuilder(9000.0f)
