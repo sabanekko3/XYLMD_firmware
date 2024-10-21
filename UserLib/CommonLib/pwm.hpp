@@ -27,7 +27,6 @@ namespace SabaneLib{
 	protected:
 		TIM_HandleTypeDef *tim;
 		const uint32_t ch;
-
 	public:
 		PWMHard(TIM_HandleTypeDef *_tim,uint32_t _ch)
 			: tim(_tim),
@@ -48,11 +47,13 @@ namespace SabaneLib{
 
 		void start(void){
 			HAL_TIM_PWM_Start(tim, ch);
+			HAL_TIMEx_PWMN_Start(tim,ch);
 			__HAL_TIM_SET_COMPARE(tim, ch,0);
 		}
 
 		void stop(void){
 			HAL_TIM_PWM_Stop(tim, ch);
+			HAL_TIMEx_PWMN_Stop(tim,ch);
 			__HAL_TIM_SET_COMPARE(tim, ch,0);
 		}
 
