@@ -65,10 +65,10 @@ namespace LMDBoard{
 	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
 		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),
 		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),
-		SabaneLib::FdCanRxFifo::fifo0
+		SabaneLib::FdCanRxFifo[0]
 	};
 
-	inline constexpr auto my_axis = LSMParam::Axis::X;
+	inline constexpr auto my_axis = LSMParam::Axis::Y;
 
 	inline q15_t qsin;
 	inline q15_t qcos;
