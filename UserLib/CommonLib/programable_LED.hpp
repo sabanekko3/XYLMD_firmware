@@ -20,7 +20,7 @@ namespace SabaneLib{
 
 	class ILED{
 	public:
-		virtual void start_sequence(const LEDState *pattern) = 0;
+		virtual void play(const LEDState *pattern) = 0;
 		virtual bool is_playing(void) = 0;
 	};
 
@@ -36,7 +36,7 @@ namespace SabaneLib{
 			PWMHard(tim,ch){
 		}
 
-		void start_sequence(const LEDState *pattern) override{
+		void play(const LEDState *pattern) override{
 			playing_pattern = pattern;
 			pattern_count = 0;
 			length_count = 0;
@@ -49,21 +49,20 @@ namespace SabaneLib{
 		bool is_playing(void)override{return playing_pattern!=nullptr ? true:false;}
 
 		void update(void){
-			if(playing_pattern != nullptr){
-				length_count  --;
-				if(length_count <= 0){
-					pattern_count ++;
+			if(playing_pattern == nullptr){
+				return;
+			}
+			length_count  --;
+			if(length_count <= 0){
+				pattern_count ++;
 
-					if(playing_pattern[pattern_count].length == 0){
-						playing_pattern = nullptr;
-						out(0.0f);
-						return;
-					}
-					length_count = playing_pattern[pattern_count].length;
-					out(playing_pattern[pattern_count].power);
+				if(playing_pattern[pattern_count].length == 0){
+					playing_pattern = nullptr;
+					out(0.0f);
+					return;
 				}
-			}else{
-
+				length_count = playing_pattern[pattern_count].length;
+				out(playing_pattern[pattern_count].power);
 			}
 		}
 
@@ -72,6 +71,52 @@ namespace SabaneLib{
 		}
 
 	};
+
+	class LEDHALGpio:public ILED{
+	private:
+		GPIO_TypeDef *port;
+		const uint32_t pin;
+
+		const LEDState *playing_pattern = nullptr;
+		uint32_t pattern_count = 0;
+		uint32_t length_count = 0;
+
+	public:
+		LEDHALGpio(GPIO_TypeDef *_port,uint32_t _pin):port(_port),pin(_pin){
+		}
+
+		void play(const LEDState *pattern) override{
+			playing_pattern = pattern;
+			pattern_count = 0;
+			length_count = 0;
+
+			length_count = playing_pattern[pattern_count].length;
+
+			HAL_GPIO_WritePin(port,pin,(playing_pattern[pattern_count].power > 0.5) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+		}
+
+		bool is_playing(void)override{return playing_pattern!=nullptr ? true:false;}
+
+		void update(void){
+			if(playing_pattern == nullptr){
+				return;
+			}
+
+			length_count  --;
+			if(length_count <= 0){
+				pattern_count ++;
+
+				if(playing_pattern[pattern_count].length == 0){
+					playing_pattern = nullptr;
+					HAL_GPIO_WritePin(port,pin,GPIO_PIN_RESET);
+					return;
+				}
+				length_count = playing_pattern[pattern_count].length;
+				HAL_GPIO_WritePin(port,pin,(playing_pattern[pattern_count].power > 0.5) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+			}
+		}
+	};
+
 }
 
 

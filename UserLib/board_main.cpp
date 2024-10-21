@@ -32,12 +32,13 @@ extern "C" int _write(int file, char *ptr, int len) {
 }
 
 static void print_param(void){
-	printf("%4.3f,%4.3f,%4.3f,%4.3f,%d\r\n",
+	constexpr float q15rad_to_mm = 30.0f/static_cast<float>(0xFFFF);
+	printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f\r\n",
 			b::target_i.d,
 			b::target_i.q,
 			b::dq_i.d,
 			b::dq_i.q,
-			__HAL_TIM_GET_COMPARE(&htim1, TIM_CHANNEL_2)
+			b::atan_enc.get_speed()*q15rad_to_mm
 	);
 	HAL_Delay(1);
 }
@@ -125,7 +126,7 @@ extern "C" void main_(void){
 			  }
 		}
 
-		//print_param();
+		print_param();
 
 	}
 }

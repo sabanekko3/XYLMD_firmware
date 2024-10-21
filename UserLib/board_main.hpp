@@ -36,7 +36,7 @@ namespace LMDBoard{
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
-	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,9000.f};
+	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,18000.f};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
@@ -45,17 +45,17 @@ namespace LMDBoard{
 	};
 
 	namespace PIDIns{
-		inline auto position = SabaneLib::PIDBuilder(9000.0f)
+		inline auto position = SabaneLib::PIDBuilder(18000.0f)
 				.set_gain(0.000'1f, 0.000'1f, 0.0f)
 				.set_limit(0.0f)
 				.build();
 
-		inline auto d_current = SabaneLib::PIDBuilder(9000.0f)
+		inline auto d_current = SabaneLib::PIDBuilder(18000.0f)
 				.set_gain(0.1f, 0.8f, 0.0f)
 				.set_limit(1.0f)
 				.build();
 
-		inline auto q_current = SabaneLib::PIDBuilder(9000.0f)
+		inline auto q_current = SabaneLib::PIDBuilder(18000.0f)
 				.set_gain(0.1f, 0.8f, 0.0f)
 				.set_limit(1.0f)
 				.build();
