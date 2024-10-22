@@ -61,10 +61,12 @@ namespace LMDBoard{
 				.build();
 	}
 
-
+	//静的にunique_ptrを生成する
+	inline auto can_tx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
+	inline auto can_rx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
 	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
-		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),
-		std::make_unique<SabaneLib::RingBuffer<SabaneLib::CanFrame,5> >(),
+		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_tx_buff),
+		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_rx_buff),
 		SabaneLib::FdCanRxFifo[0]
 	};
 
@@ -84,7 +86,6 @@ namespace LMDBoard{
 
 	inline int32_t atan_enc_bias = 0;
 
-	inline volatile uint16_t adc_val[3]={0};
 	inline volatile uint16_t vref_val = 0;
 }
 
