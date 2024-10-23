@@ -36,6 +36,7 @@ namespace LMDBoard{
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
+	inline q15_t e_angle;
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,18000.f};
 
 	inline auto motor = LMDLib::Motor{
@@ -62,6 +63,7 @@ namespace LMDBoard{
 	}
 
 	//静的にunique_ptrを生成する
+	//make_uniqueはnewを使用しているため微妙
 	inline auto can_tx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
 	inline auto can_rx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
 	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
@@ -74,15 +76,13 @@ namespace LMDBoard{
 
 	inline constexpr auto my_axis = LSMParam::Axis::Y;
 
-	inline q15_t qsin;
-	inline q15_t qcos;
-
 	inline SabaneLib::MotorMath::UVW uvw_i;
+	inline SabaneLib::MotorMath::AB ab_i;
 	inline SabaneLib::MotorMath::DQ dq_i;
 
 	inline SabaneLib::MotorMath::DQ target_i;
 
-	inline float target_mm = 0.0f;
+	inline float target_angle = 0.0f;
 
 	inline int32_t atan_enc_bias = 0;
 

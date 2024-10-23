@@ -22,6 +22,9 @@ namespace LSMParam{
 		GAIN_I,
 		GAIN_D
 	};
+
+	constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
+	constexpr float q15rad_to_mm = 30.0f / static_cast<float>(0xFFFF);
 }
 
 #endif /* BOARD_PARAMS_HPP_ */

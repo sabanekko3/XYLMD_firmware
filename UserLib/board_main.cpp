@@ -32,24 +32,23 @@ extern "C" int _write(int file, char *ptr, int len) {
 }
 
 static void print_param(void){
-	constexpr float q15rad_to_mm = 30.0f/static_cast<float>(0xFFFF);
 	printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f\r\n",
 			b::target_i.d,
 			b::target_i.q,
 			b::dq_i.d,
 			b::dq_i.q,
-			b::atan_enc.get_speed()*q15rad_to_mm
+			b::atan_enc.get_speed() * LSMParam::q15rad_to_mm
 	);
 	HAL_Delay(1);
 }
 
 static void move_test(void){
 	while(1){
-		b::target_mm = 0.0f;
+		b::target_angle = 0.0f * LSMParam::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_mm = 50.0f;
+		b::target_angle = 50.0f * LSMParam::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_mm = 100.0f;
+		b::target_angle = 100.0f * LSMParam::mm_to_q15rad;
 		HAL_Delay(500);
 	}
 }
@@ -97,6 +96,7 @@ extern "C" void main_(void){
 			b::atan_enc_bias = b::atan_enc.get_angle();
 			b::PIDIns::position.set_limit(4.0f);
 			b::led.play(SabaneLib::LEDPattern::setting);
+			b::target_angle = 0.0f * LSMParam::mm_to_q15rad;
 			//move_test();
 		}
 
@@ -110,7 +110,7 @@ extern "C" void main_(void){
 				  b::atan_enc_bias = b::atan_enc.get_angle();
 				  break;
 			  case LSMParam::Command::TARGET_POS:
-				  b::target_mm = data_select(b::my_axis,reader);
+				  b::target_angle = data_select(b::my_axis,reader) * LSMParam::mm_to_q15rad;
 				  break;
 			  case LSMParam::Command::POWER:
 				  b::PIDIns::position.set_limit(data_select(b::my_axis,reader));
