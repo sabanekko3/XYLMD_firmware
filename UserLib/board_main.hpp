@@ -31,7 +31,9 @@
 
 #include <stdio.h>
 
-namespace LMDBoard{
+namespace BoardElement{
+
+	inline constexpr auto my_axis = BoardParam::Axis::Y;
 
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
@@ -74,7 +76,8 @@ namespace LMDBoard{
 
 	inline auto led = SabaneLib::LEDLLGpio{LED_GPIO_Port,LED_Pin};
 
-	inline constexpr auto my_axis = LSMParam::Axis::Y;
+
+	inline float vbus_voltage = 0.0f;
 
 	inline SabaneLib::MotorMath::UVW uvw_i;
 	inline SabaneLib::MotorMath::AB ab_i;
@@ -85,8 +88,6 @@ namespace LMDBoard{
 	inline float target_angle = 0.0f;
 
 	inline int32_t atan_enc_bias = 0;
-
-	inline volatile uint16_t vref_val = 0;
 }
 
 
