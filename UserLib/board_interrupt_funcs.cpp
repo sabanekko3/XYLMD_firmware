@@ -31,7 +31,6 @@ static float adc_to_current(uint16_t adc_val){
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
-
 	static int adc_flag = 0;
 	if(hadc == &hadc1){
 		//b::uvw_i.w = adc_to_current(ADC1->JDR1);
@@ -49,7 +48,6 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 	}
 
 	if(adc_flag == 0b11){
-		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		//Cordicの読み込みとuvw->dq変換
 		b::ab_i = SabaneLib::MotorMath::uvw_to_ab(b::uvw_i);
 		while(not b::cordic.is_avilable()){}
@@ -68,7 +66,6 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		);
 
 		adc_flag = 0;
-		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
 
 }
@@ -81,6 +78,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //		b::target_i.d = 0.0f;
 //		b::target_i.q = b::PIDIns::position(b::target_angle, b::atan_enc.update(b::e_angle) - b::atan_enc_bias);
 //		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
+
 		//LED制御
 		b::led.update();
 	}
