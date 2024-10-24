@@ -18,6 +18,7 @@
 #include "CommonLib/LED_pattern.hpp"
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
+#include "CommonLib/filter.hpp"
 
 #include "main.h"
 #include "adc.h"
@@ -39,7 +40,8 @@ namespace BoardElement{
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
 	inline q15_t e_angle;
-	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,18000.f};
+	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
+	inline auto enc_filter = SabaneLib::LowpassFilter{0.07};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
@@ -48,7 +50,7 @@ namespace BoardElement{
 	};
 
 	namespace PIDIns{
-		inline auto position = SabaneLib::PIDBuilder(18000.0f)
+		inline auto position = SabaneLib::PIDBuilder(1000.0f)
 				.set_gain(0.000'1f, 0.000'1f, 0.0f)
 				.set_limit(0.0f)
 				.build();
