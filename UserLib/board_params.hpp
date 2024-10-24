@@ -10,7 +10,7 @@
 
 #include "main.h"
 
-namespace BoardParam{
+namespace BoardLib{
 	enum class Axis{
 		X,
 		Y

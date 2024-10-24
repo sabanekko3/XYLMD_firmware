@@ -11,12 +11,12 @@
 #include "programable_LED.hpp"
 namespace SabaneLib::LEDPattern{
 
-	inline const LEDState ok[] = {
+	inline constexpr LEDState ok[] = {
 		{1.0f,10},
 		{0.0f,10},
 		end
 	};
-	inline const LEDState setting[]={
+	inline constexpr LEDState setting[]={
 		{1.0f,100},
 		{0.0f,100},
 		{1.0f,700},

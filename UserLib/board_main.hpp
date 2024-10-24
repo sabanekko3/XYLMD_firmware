@@ -33,7 +33,7 @@
 
 namespace BoardElement{
 
-	inline constexpr auto my_axis = BoardParam::Axis::Y;
+	inline constexpr auto my_axis = BoardLib::Axis::Y;
 
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
@@ -77,13 +77,14 @@ namespace BoardElement{
 	inline auto led = SabaneLib::LEDLLGpio{LED_GPIO_Port,LED_Pin};
 
 
+	//変数
 	inline float vbus_voltage = 0.0f;
 
-	inline SabaneLib::MotorMath::UVW uvw_i;
-	inline SabaneLib::MotorMath::AB ab_i;
-	inline SabaneLib::MotorMath::DQ dq_i;
+	inline SabaneLib::MotorMath::UVW uvw_i = {.u=0.0f, .v=0.0f, .w=0.0f};
+	inline SabaneLib::MotorMath::AB ab_i = {.a = 0.0f, .b = 0.0f};
+	inline SabaneLib::MotorMath::DQ dq_i = {.d = 0.0f, .q = 0.0f};
 
-	inline SabaneLib::MotorMath::DQ target_i;
+	inline SabaneLib::MotorMath::DQ target_i = {.d = 0.0f, .q =0.0f};
 
 	inline float target_angle = 0.0f;
 

@@ -11,17 +11,18 @@
 #include "main.h"
 
 namespace b = BoardElement;
+namespace blib = BoardLib;
+namespace slib = SabaneLib;
 
-
-static float data_select(BoardParam::Axis xy,SabaneLib::ByteReader &r){
+static float data_select(blib::Axis xy,slib::ByteReader &r){
 	auto data_x = r.read<float>();
 	auto data_y = r.read<float>();
 
 	switch(xy){
-	case BoardParam::Axis::X:
+	case blib::Axis::X:
 		return data_x.has_value() ? data_x.value() : 0.0f;
 		break;
-	case BoardParam::Axis::Y:
+	case blib::Axis::Y:
 		return data_y.has_value() ? data_y.value() : 0.0f;
 		break;
 	}
@@ -39,7 +40,7 @@ static void print_param(void){
 			b::target_i.q,
 			b::dq_i.d,
 			b::dq_i.q,
-			b::atan_enc.get_speed() * BoardParam::q15rad_to_mm,
+			b::atan_enc.get_speed() * blib::q15rad_to_mm,
 			b::vbus_voltage
 	);
 	HAL_Delay(1);
@@ -47,11 +48,11 @@ static void print_param(void){
 
 static void move_test(void){
 	while(1){
-		b::target_angle = 0.0f * BoardParam::mm_to_q15rad;
+		b::target_angle = 0.0f * blib::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_angle = 50.0f * BoardParam::mm_to_q15rad;
+		b::target_angle = 50.0f * blib::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_angle = 100.0f * BoardParam::mm_to_q15rad;
+		b::target_angle = 100.0f * blib::mm_to_q15rad;
 		HAL_Delay(500);
 	}
 }
@@ -99,7 +100,7 @@ extern "C" void main_(void){
 			b::atan_enc_bias = b::atan_enc.get_angle();
 			b::PIDIns::position.set_limit(4.0f);
 			b::led.play(SabaneLib::LEDPattern::setting);
-			b::target_angle = 0.0f * BoardParam::mm_to_q15rad;
+			b::target_angle = 0.0f * blib::mm_to_q15rad;
 			//move_test();
 		}
 
@@ -108,23 +109,23 @@ extern "C" void main_(void){
 			  b::can.rx(rx_frame);
 			  auto reader = rx_frame.reader();
 
-			  switch(static_cast<BoardParam::Command>(rx_frame.id)){
-			  case BoardParam::Command::SET_ORIGIN:
+			  switch(static_cast<blib::Command>(rx_frame.id)){
+			  case blib::Command::SET_ORIGIN:
 				  b::atan_enc_bias = b::atan_enc.get_angle();
 				  break;
-			  case BoardParam::Command::TARGET_POS:
-				  b::target_angle = data_select(b::my_axis,reader) * BoardParam::mm_to_q15rad;
+			  case blib::Command::TARGET_POS:
+				  b::target_angle = data_select(b::my_axis,reader) * blib::mm_to_q15rad;
 				  break;
-			  case BoardParam::Command::POWER:
+			  case blib::Command::POWER:
 				  b::PIDIns::position.set_limit(data_select(b::my_axis,reader));
 				  break;
-			  case BoardParam::Command::GAIN_P:
+			  case blib::Command::GAIN_P:
 				  b::PIDIns::position.set_p_gain(data_select(b::my_axis,reader));
 				  break;
-			  case BoardParam::Command::GAIN_I:
+			  case blib::Command::GAIN_I:
 				  b::PIDIns::position.set_i_gain(data_select(b::my_axis,reader));
 				  break;
-			  case BoardParam::Command::GAIN_D:
+			  case blib::Command::GAIN_D:
 				  b::PIDIns::position.set_d_gain(data_select(b::my_axis,reader));
 				  break;
 			  default:
