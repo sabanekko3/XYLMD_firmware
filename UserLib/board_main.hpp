@@ -89,6 +89,11 @@ namespace BoardElement{
 	inline float target_angle = 0.0f;
 
 	inline int32_t atan_enc_bias = 0;
+
+	namespace TestFunctions{
+		void print_param(void);
+		void move_test(void);
+	}
 }
 
 

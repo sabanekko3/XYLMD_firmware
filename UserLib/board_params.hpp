@@ -8,6 +8,8 @@
 #ifndef BOARD_PARAMS_HPP_
 #define BOARD_PARAMS_HPP_
 
+#include "CommonLib/byte_reader_writer.hpp"
+
 #include "main.h"
 
 namespace BoardLib{
@@ -43,6 +45,21 @@ namespace BoardLib{
 	constexpr float adc_to_voltage(uint16_t adc_val){
 		constexpr float coef = (169.0f + 18.0f)/18.0f* 3.3f/static_cast<float>(0xFFF);
 		return adc_val * coef;
+	}
+
+	inline float data_select(Axis xy,SabaneLib::ByteReader &r){
+		auto data_x = r.read<float>();
+		auto data_y = r.read<float>();
+
+		switch(xy){
+		case Axis::X:
+			return data_x.has_value() ? data_x.value() : 0.0f;
+			break;
+		case Axis::Y:
+			return data_y.has_value() ? data_y.value() : 0.0f;
+			break;
+		}
+		return 0.0f;
 	}
 }
 

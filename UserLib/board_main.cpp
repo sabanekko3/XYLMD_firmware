@@ -14,27 +14,12 @@ namespace b = BoardElement;
 namespace blib = BoardLib;
 namespace slib = SabaneLib;
 
-static float data_select(blib::Axis xy,slib::ByteReader &r){
-	auto data_x = r.read<float>();
-	auto data_y = r.read<float>();
-
-	switch(xy){
-	case blib::Axis::X:
-		return data_x.has_value() ? data_x.value() : 0.0f;
-		break;
-	case blib::Axis::Y:
-		return data_y.has_value() ? data_y.value() : 0.0f;
-		break;
-	}
-	return 0.0f;
-}
-
 extern "C" int _write(int file, char *ptr, int len) {
 	HAL_UART_Transmit(&huart2, (uint8_t*) ptr, len,100);
 	return len;
 }
 
-static void print_param(void){
+void b::TestFunctions::print_param(void){
 	printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f,%4.3f\r\n",
 			b::target_i.d,
 			b::target_i.q,
@@ -46,7 +31,7 @@ static void print_param(void){
 	HAL_Delay(1);
 }
 
-static void move_test(void){
+void b::TestFunctions::move_test(){
 	while(1){
 		b::target_angle = 0.0f * blib::mm_to_q15rad;
 		HAL_Delay(500);
@@ -114,26 +99,26 @@ extern "C" void main_(void){
 				  b::atan_enc_bias = b::atan_enc.get_angle();
 				  break;
 			  case blib::Command::TARGET_POS:
-				  b::target_angle = data_select(b::my_axis,reader) * blib::mm_to_q15rad;
+				  b::target_angle = blib::data_select(b::my_axis,reader) * blib::mm_to_q15rad;
 				  break;
 			  case blib::Command::POWER:
-				  b::PIDIns::position.set_limit(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_limit(blib::data_select(b::my_axis,reader));
 				  break;
 			  case blib::Command::GAIN_P:
-				  b::PIDIns::position.set_p_gain(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_p_gain(blib::data_select(b::my_axis,reader));
 				  break;
 			  case blib::Command::GAIN_I:
-				  b::PIDIns::position.set_i_gain(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_i_gain(blib::data_select(b::my_axis,reader));
 				  break;
 			  case blib::Command::GAIN_D:
-				  b::PIDIns::position.set_d_gain(data_select(b::my_axis,reader));
+				  b::PIDIns::position.set_d_gain(blib::data_select(b::my_axis,reader));
 				  break;
 			  default:
 				  break;
 			  }
 		}
 
-		print_param();
+		//print_param();
 
 	}
 }
