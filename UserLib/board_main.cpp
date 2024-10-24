@@ -10,46 +10,34 @@
 
 #include "main.h"
 
-namespace b = LMDBoard;
-
-
-static float data_select(LSMParam::Axis xy,SabaneLib::ByteReader &r){
-	auto data_x = r.read<float>();
-	auto data_y = r.read<float>();
-
-	switch(xy){
-	case LSMParam::Axis::X:
-		return data_x.has_value() ? data_x.value() : 0.0f;
-	case LSMParam::Axis::Y:
-		return data_y.has_value() ? data_y.value() : 0.0f;
-	}
-	return 0.0f;
-}
+namespace b = BoardElement;
+namespace blib = BoardLib;
+namespace slib = SabaneLib;
 
 extern "C" int _write(int file, char *ptr, int len) {
 	HAL_UART_Transmit(&huart2, (uint8_t*) ptr, len,100);
 	return len;
 }
 
-static void print_param(void){
-	constexpr float q15rad_to_mm = 30.0f/static_cast<float>(0xFFFF);
-	printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f\r\n",
+void b::TestFunctions::print_param(void){
+	printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f,%4.3f\r\n",
 			b::target_i.d,
 			b::target_i.q,
 			b::dq_i.d,
 			b::dq_i.q,
-			b::atan_enc.get_speed()*q15rad_to_mm
+			b::atan_enc.get_speed() * blib::q15rad_to_mm,
+			b::vbus_voltage
 	);
 	HAL_Delay(1);
 }
 
-static void move_test(void){
+void b::TestFunctions::move_test(){
 	while(1){
-		b::target_mm = 0.0f;
+		b::target_angle = 0.0f * blib::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_mm = 50.0f;
+		b::target_angle = 50.0f * blib::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_mm = 100.0f;
+		b::target_angle = 100.0f * blib::mm_to_q15rad;
 		HAL_Delay(500);
 	}
 }
@@ -64,7 +52,7 @@ extern "C" void main_(void){
 	HAL_OPAMP_Start(&hopamp3);
 
 	//テーブル初期化
-	LMDBoard::table.generate([](float rad)->float{
+	b::table.generate([](float rad)->float{
 	  b::cordic.start_sincos(rad);
 	  while(not b::cordic.is_avilable());
 	  return b::cordic.get_sincos().sin;
@@ -97,6 +85,7 @@ extern "C" void main_(void){
 			b::atan_enc_bias = b::atan_enc.get_angle();
 			b::PIDIns::position.set_limit(4.0f);
 			b::led.play(SabaneLib::LEDPattern::setting);
+			b::target_angle = 0.0f * blib::mm_to_q15rad;
 			//move_test();
 		}
 
@@ -105,31 +94,31 @@ extern "C" void main_(void){
 			  b::can.rx(rx_frame);
 			  auto reader = rx_frame.reader();
 
-			  switch(static_cast<LSMParam::Command>(rx_frame.id)){
-			  case LSMParam::Command::SET_ORIGIN:
+			  switch(static_cast<blib::Command>(rx_frame.id)){
+			  case blib::Command::SET_ORIGIN:
 				  b::atan_enc_bias = b::atan_enc.get_angle();
 				  break;
-			  case LSMParam::Command::TARGET_POS:
-				  b::target_mm = data_select(b::my_axis,reader);
+			  case blib::Command::TARGET_POS:
+				  b::target_angle = blib::data_select(b::my_axis,reader) * blib::mm_to_q15rad;
 				  break;
-			  case LSMParam::Command::POWER:
-				  b::PIDIns::position.set_limit(data_select(b::my_axis,reader));
+			  case blib::Command::POWER:
+				  b::PIDIns::position.set_limit(blib::data_select(b::my_axis,reader));
 				  break;
-			  case LSMParam::Command::GAIN_P:
-				  b::PIDIns::position.set_p_gain(data_select(b::my_axis,reader));
+			  case blib::Command::GAIN_P:
+				  b::PIDIns::position.set_p_gain(blib::data_select(b::my_axis,reader));
 				  break;
-			  case LSMParam::Command::GAIN_I:
-				  b::PIDIns::position.set_i_gain(data_select(b::my_axis,reader));
+			  case blib::Command::GAIN_I:
+				  b::PIDIns::position.set_i_gain(blib::data_select(b::my_axis,reader));
 				  break;
-			  case LSMParam::Command::GAIN_D:
-				  b::PIDIns::position.set_d_gain(data_select(b::my_axis,reader));
+			  case blib::Command::GAIN_D:
+				  b::PIDIns::position.set_d_gain(blib::data_select(b::my_axis,reader));
 				  break;
 			  default:
 				  break;
 			  }
 		}
 
-		print_param();
+		//print_param();
 
 	}
 }

@@ -14,56 +14,84 @@
 #define ARM_MATH_CM4
 
 namespace SabaneLib::MotorMath{
+	struct DQ;
+	struct AB;
+	struct UVW;
+
+	struct SinCos{
+		float sin;
+		float cos;
+	};
+
 	struct DQ{
-		float d = 0.0f;
-		float q = 0.0f;
+		float d;
+		float q;
+
+		AB to_ab(SinCos sincos);
+		UVW to_uvw(SinCos sincos);
 	};
 
 	struct AB{
-		float a = 0.0f;
-		float b = 0.0f;
+		float a;
+		float b;
+
+		DQ to_dq(SinCos sincos);
+		UVW to_uvw(void);
 	};
 
 	struct UVW{
-		float u = 0.0f;
-		float v = 0.0f;
-		float w = 0.0f;
+		float u;
+		float v;
+		float w;
+
+		DQ to_dq(SinCos sincos);
+		AB to_ab(void);
 	};
 
-	struct SinCos{
-		float sin = 0.0f;
-		float cos = 0.0f;
-	};
-
-	inline AB uvw_to_ab(const UVW &input){
-		AB tmp;
-		arm_clarke_f32(input.u,input.v,&tmp.a,&tmp.b);
-		return tmp;
+	//struct DQ functions
+	inline AB DQ::to_ab(SinCos sincos){
+		AB ab_data;
+		arm_inv_park_f32(d,q,&ab_data.a,&ab_data.b,sincos.sin,sincos.cos);
+		return ab_data;
 	}
 
-	inline DQ ab_to_dq(AB input,SinCos sincos){
-		DQ tmp;
-		arm_park_f32(input.a,input.b,&tmp.d,&tmp.q,sincos.sin,sincos.cos);
-		return tmp;
-	}
-
-	inline UVW dq_to_uvw(DQ input,SinCos sincos){
+	inline UVW DQ::to_uvw(SinCos sincos){
 		AB ab_data;
 		UVW uvw_data;
 
-		arm_inv_park_f32(input.d,input.q,&ab_data.a,&ab_data.b,sincos.sin,sincos.cos);
+		arm_inv_park_f32(d,q,&ab_data.a,&ab_data.b,sincos.sin,sincos.cos);
 		arm_inv_clarke_f32(ab_data.a,ab_data.b,&uvw_data.u,&uvw_data.v);
 		uvw_data.w = -uvw_data.u - uvw_data.v;
 		return uvw_data;
 	}
 
-	inline DQ uvw_to_dq(UVW input,SinCos sincos){
+	//struct AB functions
+	inline DQ AB::to_dq(SinCos sincos){
+		DQ dq_data;
+		arm_park_f32(a,b,&dq_data.d,&dq_data.q,sincos.sin,sincos.cos);
+		return dq_data;
+	}
+	inline UVW AB::to_uvw(void){
+		UVW uvw_data;
+		arm_inv_clarke_f32(a,b,&uvw_data.u,&uvw_data.v);
+		uvw_data.w = -uvw_data.u - uvw_data.v;
+		return uvw_data;
+	}
+
+	//struct UVW functions
+	inline DQ UVW::to_dq(SinCos sincos){
 		AB ab_data;
 		DQ dq_data;
 
-		arm_clarke_f32(input.u,input.v,&ab_data.a,&ab_data.b);
+		arm_clarke_f32(u,v,&ab_data.a,&ab_data.b);
 		arm_park_f32(ab_data.a,ab_data.b,&dq_data.d,&dq_data.q,sincos.sin,sincos.cos);
 		return dq_data;
+	}
+
+	inline AB UVW::to_ab(void){
+		AB ab_data;
+		arm_clarke_f32(u,v,&ab_data.a,&ab_data.b);
+		return ab_data;
 	}
 }
 

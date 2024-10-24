@@ -28,20 +28,24 @@ namespace SabaneLib{
 	private:
 		const size_t resolution_bit;
 		const size_t resolution;
+		const size_t mask;
 
+		//angle
 		uint32_t angle = 0;
 		uint32_t speed = 0;
 		int32_t turn_count = 0;
 
+		//speed
 		const int32_t k_speed;
 		int32_t angle_buff[16];
 		uint32_t head = 0;
-		int32_t angle_sum_old = 0;
+		const uint32_t head_mask = (sizeof(angle_buff)/sizeof(float) - 1);
 
 	public:
 		ContinuableEncoder(size_t _resolution_bit,float freq):
 			resolution_bit(_resolution_bit),
 			resolution(1<<resolution_bit),
+			mask(resolution -1),
 			k_speed(freq/(sizeof(angle_buff)/sizeof(int32_t))){
 		}
 
@@ -49,10 +53,11 @@ namespace SabaneLib{
 		int32_t get_speed(void)const override{return speed;}
 
 		virtual int32_t update(uint32_t _angle){
-			int32_t new_angle = _angle&(resolution-1);
+			int32_t new_angle = _angle&mask;
 
-			int32_t angle_top_2 = (new_angle>>(resolution_bit-2))&0b11;
-			int32_t old_angle_top_2 = (angle>>(resolution_bit-2))&0b11;
+			//solve angle
+			int32_t angle_top_2 = new_angle >> (resolution_bit-2);
+			int32_t old_angle_top_2 = (angle >> (resolution_bit-2))&0b11;
 
 			if(old_angle_top_2 == 3 && angle_top_2 == 0){
 				turn_count ++;
@@ -62,11 +67,11 @@ namespace SabaneLib{
 
 			angle = new_angle + resolution*turn_count;
 
-			angle_buff[head] = angle;
-			head = (head+1)&(sizeof(angle_buff)/sizeof(float) - 1);
-			int32_t angle_sum = std::reduce(std::begin(angle_buff), std::end(angle_buff));
-			speed = (angle_sum - angle_sum_old)*k_speed;
-			angle_sum_old = angle_sum;
+			//solve speed
+			uint32_t head_tmp = head;
+			head = (head + 1) & head_mask;
+			angle_buff[head_tmp] = angle;
+			speed = (angle_buff[head_tmp] - angle_buff[head])*k_speed;
 
 			return angle;
 		}
