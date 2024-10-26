@@ -27,8 +27,11 @@ namespace BoardLib{
 		GAIN_D
 	};
 
-	constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
-	constexpr float q15rad_to_mm = 30.0f / static_cast<float>(0xFFFF);
+	namespace Coef{
+		constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
+		constexpr float q15rad_to_mm = 30.0f / static_cast<float>(0xFFFF);
+	}
+
 
 	constexpr float adc_to_current(uint16_t adc_val){
 		constexpr float rl = (2.2f*1.5f)/(2.2f+1.5f); //基板上の並列接続された抵抗の合成抵抗
@@ -42,9 +45,9 @@ namespace BoardLib{
 		return -(bias - amp_gain_inv*v)*shant_r_inv;
 	}
 
-	constexpr float adc_to_voltage(uint16_t adc_val){
-		constexpr float coef = (169.0f + 18.0f)/18.0f* 3.3f/static_cast<float>(0xFFF);
-		return adc_val * coef;
+	constexpr float adc_to_voltage(uint16_t adc_val,float gain = 1.0f){
+		constexpr float coef = 3.3f/static_cast<float>(0xFFF);
+		return adc_val * coef * gain;
 	}
 
 	inline float data_select(Axis xy,SabaneLib::ByteReader &r){

@@ -21,6 +21,7 @@ namespace SabaneLib{
 	public:
 		virtual int32_t get_angle(void)const = 0;
 		virtual int32_t get_speed(void)const = 0;
+		virtual ~IEncoder(){}
 	};
 
 	//エンコーダーの連続化クラス
@@ -57,11 +58,11 @@ namespace SabaneLib{
 
 			//solve angle
 			int32_t angle_top_2 = new_angle >> (resolution_bit-2);
-			int32_t old_angle_top_2 = (angle >> (resolution_bit-2))&0b11;
+			int32_t prev_angle_top_2 = (angle >> (resolution_bit-2))&0b11;
 
-			if(old_angle_top_2 == 3 && angle_top_2 == 0){
+			if(prev_angle_top_2 == 3 && angle_top_2 == 0){
 				turn_count ++;
-			}else if(old_angle_top_2 == 0 && angle_top_2 == 3){
+			}else if(prev_angle_top_2 == 0 && angle_top_2 == 3){
 				turn_count --;
 			}
 

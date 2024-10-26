@@ -41,10 +41,10 @@ namespace SabaneLib{
 	class FdCanComm:public ICan{
 		FDCAN_HandleTypeDef *fdcan;
 
-		const FdCanRxFifoParams &rx_fifo;
-
 		std::unique_ptr<IRingBuffer<CanFrame> > rx_buff;
 		std::unique_ptr<IRingBuffer<CanFrame> > tx_buff;
+
+		const FdCanRxFifoParams &rx_fifo;
 	public:
 		FdCanComm(FDCAN_HandleTypeDef *_fdcan,std::unique_ptr<IRingBuffer<CanFrame>> _rx_buff,std::unique_ptr<IRingBuffer<CanFrame>> &&_tx_buff,const FdCanRxFifoParams &_rx_fifo)
 			:fdcan(_fdcan),

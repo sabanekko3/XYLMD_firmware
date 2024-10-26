@@ -30,6 +30,8 @@ namespace SabaneLib{
 		size_t virtual get_free_level(void)const = 0;
 		size_t virtual get_busy_level(void)const = 0;
 		void virtual reset(void) = 0;
+
+		virtual ~IRingBuffer(){}
 	};
 
 	template<typename T, size_t n>

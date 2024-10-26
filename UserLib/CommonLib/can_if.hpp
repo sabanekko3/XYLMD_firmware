@@ -45,6 +45,8 @@ namespace SabaneLib{
 
 		uint32_t virtual rx_available(void)const = 0;
 		bool virtual rx(CanFrame &rx_frame) = 0;
+
+		virtual ~ICan(){}
 	};
 }
 

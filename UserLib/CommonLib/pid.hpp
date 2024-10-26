@@ -20,7 +20,7 @@ private:
 	float ki;
 	float kd;
 	float error_sum = 0.0f;
-	float old_error = 0.0f;
+	float prev_error = 0.0f;
 
 	//anti windup
 	float k_anti_windup;
@@ -43,8 +43,8 @@ public:
 		error_sum += error;
 		float i = error_sum * ki;
 
-		float d = (error - old_error) * kd;
-		old_error = error;
+		float d = (error - prev_error) * kd;
+		prev_error = error;
 
 		float pid_result = p+i+d;
 		float pid_result_clamped = std::clamp<float>(pid_result, limit_min, limit_max);
@@ -92,7 +92,7 @@ public:
 
 	void reset(void){
 		error_sum = 0;
-		old_error = 0;
+		prev_error = 0;
 	}
 };
 
