@@ -25,7 +25,7 @@ void b::TestFunctions::print_param(void){
 			b::target_i.q,
 			b::dq_i.d,
 			b::dq_i.q,
-			b::atan_enc.get_speed() * blib::q15rad_to_mm,
+			b::atan_enc.get_speed() * blib::Coef::q15rad_to_mm,
 			b::vbus_voltage
 	);
 	HAL_Delay(1);
@@ -33,11 +33,11 @@ void b::TestFunctions::print_param(void){
 
 void b::TestFunctions::move_test(){
 	while(1){
-		b::target_angle = 0.0f * blib::mm_to_q15rad;
+		b::target_angle = 0.0f * blib::Coef::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_angle = 50.0f * blib::mm_to_q15rad;
+		b::target_angle = 50.0f * blib::Coef::mm_to_q15rad;
 		HAL_Delay(500);
-		b::target_angle = 100.0f * blib::mm_to_q15rad;
+		b::target_angle = 100.0f * blib::Coef::mm_to_q15rad;
 		HAL_Delay(500);
 	}
 }
@@ -85,7 +85,7 @@ extern "C" void main_(void){
 			b::atan_enc_bias = b::atan_enc.get_angle();
 			b::PIDIns::position.set_limit(4.0f);
 			b::led.play(SabaneLib::LEDPattern::setting);
-			b::target_angle = 0.0f * blib::mm_to_q15rad;
+			b::target_angle = 0.0f * blib::Coef::mm_to_q15rad;
 			//move_test();
 		}
 
@@ -99,7 +99,7 @@ extern "C" void main_(void){
 				  b::atan_enc_bias = b::atan_enc.get_angle();
 				  break;
 			  case blib::Command::TARGET_POS:
-				  b::target_angle = blib::data_select(b::my_axis,reader) * blib::mm_to_q15rad;
+				  b::target_angle = blib::data_select(b::my_axis,reader) * blib::Coef::mm_to_q15rad;
 				  break;
 			  case blib::Command::POWER:
 				  b::PIDIns::position.set_limit(blib::data_select(b::my_axis,reader));

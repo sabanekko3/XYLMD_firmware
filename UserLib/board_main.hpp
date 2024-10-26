@@ -34,14 +34,15 @@
 
 namespace BoardElement{
 
-	inline constexpr auto my_axis = BoardLib::Axis::Y;
+	inline constexpr auto my_axis = BoardLib::Axis::X;
 
 	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
 	inline q15_t e_angle;
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
-	inline auto enc_filter = SabaneLib::LowpassFilter{0.07};
+	inline auto enc_filter = SabaneLib::LowpassFilter<float>{0.2};
+	inline auto enc_moving_ave = SabaneLib::MovingAverage<int32_t,5>{};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},

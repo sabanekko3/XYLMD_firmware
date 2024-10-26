@@ -27,8 +27,11 @@ namespace BoardLib{
 		GAIN_D
 	};
 
-	constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
-	constexpr float q15rad_to_mm = 30.0f / static_cast<float>(0xFFFF);
+	namespace Coef{
+		constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
+		constexpr float q15rad_to_mm = 30.0f / static_cast<float>(0xFFFF);
+	}
+
 
 	constexpr float adc_to_current(uint16_t adc_val){
 		constexpr float rl = (2.2f*1.5f)/(2.2f+1.5f); //基板上の並列接続された抵抗の合成抵抗

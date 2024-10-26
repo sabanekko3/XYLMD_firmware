@@ -54,6 +54,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		//位置制御
 		b::atan_enc.update(b::e_angle);
 		b::enc_filter(b::atan_enc.get_angle());
+		b::enc_moving_ave.push(b::atan_enc.get_angle());
 //		b::target_i.d = 0.0f;
 //		b::target_i.q = b::PIDIns::position(b::target_angle, b::atan_enc.update(b::e_angle) - b::atan_enc_bias);
 
@@ -76,7 +77,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//位置制御
 //		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		b::target_i.d = 0.0f;
+//		b::target_i.q = b::PIDIns::position(b::target_angle, b::atan_enc.get_angle() - b::atan_enc_bias);
 		b::target_i.q = b::PIDIns::position(b::target_angle, b::enc_filter.get() - b::atan_enc_bias);
+//		b::target_i.q = b::PIDIns::position(b::target_angle, b::enc_moving_ave.get_average() - b::atan_enc_bias);
 //		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 
 		//LED制御
