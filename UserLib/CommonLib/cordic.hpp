@@ -78,6 +78,8 @@ public:
 		ans1 = tmp;
 		ans2 = tmp>>16;
 	}
+
+	virtual ~CordicHandler(){}
 };
 
 

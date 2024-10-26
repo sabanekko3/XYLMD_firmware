@@ -21,6 +21,7 @@ namespace SabaneLib{
 	public:
 		virtual int32_t get_angle(void)const = 0;
 		virtual int32_t get_speed(void)const = 0;
+		virtual ~IEncoder(){}
 	};
 
 	//エンコーダーの連続化クラス

@@ -22,6 +22,7 @@ namespace SabaneLib{
 	public:
 		virtual void play(const LEDState *pattern) = 0;
 		virtual bool is_playing(void) = 0;
+		virtual ~ILED(){}
 	};
 
 	/////////////////////////////////
