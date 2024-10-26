@@ -41,8 +41,8 @@ namespace BoardElement{
 
 	inline q15_t e_angle;
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
-	inline auto enc_filter = SabaneLib::LowpassFilter<float>{0.2};
-	inline auto enc_moving_ave = SabaneLib::MovingAverage<int32_t,5>{};
+	inline auto enc_filter = SabaneLib::LowpassFilter<float>{0.05};
+	inline auto target_filter = SabaneLib::LowpassFilter<float>{0.05};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},

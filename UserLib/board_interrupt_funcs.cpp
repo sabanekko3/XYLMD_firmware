@@ -39,7 +39,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		b::uvw_i.v = blib::adc_to_current(ADC2->JDR2);
 		b::ab_i = b::uvw_i.to_ab();
 
-		b::vbus_voltage = blib::adc_to_voltage(ADC2->JDR3);
+		b::vbus_voltage = blib::adc_to_voltage(ADC2->JDR3,(169.0f + 18.0f)/18.0f);
 		adc_flag |= 0b10;
 //		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
@@ -51,12 +51,9 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		b::e_angle = b::cordic.read_ans();
 		b::dq_i = b::ab_i.to_dq(b::table.sin_cos(b::e_angle));
 
-		//位置制御
+		//エンコーダ処理
 		b::atan_enc.update(b::e_angle);
 		b::enc_filter(b::atan_enc.get_angle());
-		b::enc_moving_ave.push(b::atan_enc.get_angle());
-//		b::target_i.d = 0.0f;
-//		b::target_i.q = b::PIDIns::position(b::target_angle, b::atan_enc.update(b::e_angle) - b::atan_enc_bias);
 
 		//電流制御
 		b::motor.move(
@@ -77,9 +74,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//位置制御
 //		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		b::target_i.d = 0.0f;
-//		b::target_i.q = b::PIDIns::position(b::target_angle, b::atan_enc.get_angle() - b::atan_enc_bias);
-		b::target_i.q = b::PIDIns::position(b::target_angle, b::enc_filter.get() - b::atan_enc_bias);
-//		b::target_i.q = b::PIDIns::position(b::target_angle, b::enc_moving_ave.get_average() - b::atan_enc_bias);
+		b::target_i.q = b::PIDIns::position(b::target_filter(b::target_angle), b::enc_filter.get() - b::atan_enc_bias);
 //		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 
 		//LED制御

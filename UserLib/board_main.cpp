@@ -77,7 +77,7 @@ extern "C" void main_(void){
 	HAL_Delay(1);//念のため
 	b::atan_enc_bias = b::atan_enc.get_angle();
 
-	b::led.play(SabaneLib::LEDPattern::ok);
+	b::led.play(slib::LEDPattern::ok);
 
 	while(1){
 
@@ -90,7 +90,7 @@ extern "C" void main_(void){
 		}
 
 		if(b::can.rx_available()){
-			  SabaneLib::CanFrame rx_frame;
+			  slib::CanFrame rx_frame;
 			  b::can.rx(rx_frame);
 			  auto reader = rx_frame.reader();
 
