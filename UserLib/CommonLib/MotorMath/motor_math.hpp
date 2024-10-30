@@ -18,11 +18,15 @@ namespace SabaneLib::MotorMath{
 	struct AB;
 	struct UVW;
 
+	//高速化のため0初期化を省略
+	//必要な場合はその都度初期化せよ
 	struct SinCos{
 		float sin;
 		float cos;
 	};
 
+	//高速化のため0初期化を省略
+	//必要な場合はその都度初期化せよ
 	struct DQ{
 		float d;
 		float q;
@@ -31,6 +35,8 @@ namespace SabaneLib::MotorMath{
 		UVW to_uvw(SinCos sincos);
 	};
 
+	//高速化のため0初期化を省略
+	//必要な場合はその都度初期化せよ
 	struct AB{
 		float a;
 		float b;
@@ -39,6 +45,8 @@ namespace SabaneLib::MotorMath{
 		UVW to_uvw(void);
 	};
 
+	//高速化のため0初期化を省略
+	//必要な場合はその都度初期化せよ
 	struct UVW{
 		float u;
 		float v;
@@ -46,6 +54,7 @@ namespace SabaneLib::MotorMath{
 
 		DQ to_dq(SinCos sincos);
 		AB to_ab(void);
+		UVW sv_modulation(void);//空間ベクトル変調
 	};
 
 	//struct DQ functions
@@ -92,6 +101,17 @@ namespace SabaneLib::MotorMath{
 		AB ab_data;
 		arm_clarke_f32(u,v,&ab_data.a,&ab_data.b);
 		return ab_data;
+	}
+
+	inline UVW UVW::sv_modulation(void){
+		float max = u>v ? u : v;
+		max = max>w ? max : w;
+		float min = u<v ? u : v;
+		min = min<w ? min : w;
+
+		float ave = (max + min)*0.5f;
+
+		return UVW{.u = this->u - ave,.v = this->v - ave,.w = this->w - ave };
 	}
 }
 

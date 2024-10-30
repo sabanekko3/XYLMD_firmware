@@ -8,7 +8,6 @@
 #ifndef PID_HPP_
 #define PID_HPP_
 
-#include <float.h>
 #include <algorithm>
 
 namespace SabaneLib{
@@ -34,24 +33,24 @@ public:
 		kd(_kd*pid_freq),
 		k_anti_windup(_k_anti_windup),
 		limit_min(_limit_min),
-		limit_max(_limit_max){}
+		limit_max(_limit_max){
+	}
 
 	float operator()(float target,float feedback){
 		float error = target - feedback;
-		float p = error * kp;
-
 		error_sum += error;
-		float i = error_sum * ki;
 
-		float d = (error - prev_error) * kd;
-		prev_error = error;
+		float pid_result =
+				error * kp
+				+ error_sum * ki
+				+ (error - prev_error) * kd;
 
-		float pid_result = p+i+d;
 		float pid_result_clamped = std::clamp<float>(pid_result, limit_min, limit_max);
 
+		prev_error = error;
 		error_sum -= (pid_result - pid_result_clamped)*k_anti_windup;
 
-		return pid_result_clamped;
+		return pid_result;
 	}
 
 	void set_gain(float _kp,float _ki,float _kd, float _k_anti_windup){

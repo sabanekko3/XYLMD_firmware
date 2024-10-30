@@ -39,7 +39,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		b::uvw_i.v = blib::adc_to_current(ADC2->JDR2);
 		b::ab_i = b::uvw_i.to_ab();
 
-		b::vbus_voltage = blib::adc_to_voltage(ADC2->JDR3,(169.0f + 18.0f)/18.0f);
+		b::vbus_voltage = blib::adc_to_voltage(ADC2->JDR3, blib::Coef::vbus_r_gain);
 		adc_flag |= 0b10;
 //		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
@@ -52,15 +52,15 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		b::dq_i = b::ab_i.to_dq(b::table.sin_cos(b::e_angle));
 
 		//エンコーダ処理
-		b::atan_enc.update(b::e_angle);
-		b::enc_filter(b::atan_enc.get_angle());
+		b::enc_filter(b::atan_enc.update(b::e_angle));
+		//b::target_i.q = b::PIDIns::position(b::target_filter(b::target_angle), b::enc_filter.get() - b::atan_enc_bias);
+
+		auto dq_v = slib::MotorMath::DQ{
+				.d = b::PIDIns::d_current(b::target_i.d,b::dq_i.d),
+				.q = b::PIDIns::q_current(b::target_i.q,b::dq_i.q)};
 
 		//電流制御
-		b::motor.move(
-				{b::PIDIns::d_current(b::target_i.d,b::dq_i.d),
-					b::PIDIns::q_current(b::target_i.q,b::dq_i.q)},
-				b::table.sin_cos(b::e_angle)
-		);
+		b::motor.move(dq_v.to_uvw(b::table.sin_cos(b::e_angle)).sv_modulation());
 
 		adc_flag = 0;
 //		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
