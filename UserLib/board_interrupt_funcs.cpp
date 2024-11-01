@@ -25,33 +25,30 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 
 	static int adc_flag = 0;
 	if(hadc == &hadc1){
-		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		q15_t qcos = -(static_cast<q15_t>(ADC1->JDR2)-static_cast<q15_t>(2154))*16;
 		q15_t qsin =  (static_cast<q15_t>(ADC1->JDR1)-static_cast<q15_t>(2142))*16;
 
 		b::cordic.start_atan2(qcos,qsin);
 
 		adc_flag |= 0b01;
-		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}else if(hadc == &hadc2){
-		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		b::uvw_i.u = blib::adc_to_current(ADC2->JDR1);
 		b::uvw_i.v = blib::adc_to_current(ADC2->JDR2);
 		b::ab_i = b::uvw_i.to_ab();
 
 		b::vbus_voltage = blib::adc_to_voltage(ADC2->JDR3, blib::Coef::vbus_r_gain);
 		adc_flag |= 0b10;
-		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
 
 	if(adc_flag == 0b11){
-		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		//Cordicの読み込みとuvw->dq変換
 		while(not b::cordic.is_avilable()){}
 		b::e_angle = b::cordic.read_ans();
-
-		//エンコーダ処理
-		b::atan_enc.update(b::e_angle);
 
 		//電流制御
 		b::dq_i = b::ab_i.to_dq(b::table.sin_cos(b::e_angle));
@@ -63,7 +60,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		b::motor.move(dq_v.to_uvw(b::table.sin_cos(b::e_angle)).sperimposition(b::table.sin(static_cast<q15_t>(b::e_angle*3))*coef));
 
 		adc_flag = 0;
-		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
 
 }
@@ -74,7 +71,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//位置制御
 //		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		b::target_i.d = 0.0f;
-		b::target_i.q = b::PIDIns::position(b::target_filter(b::target_angle), b::atan_enc.get_angle() - b::atan_enc_bias);
+		b::target_i.q = b::PIDIns::position(b::target_filter(b::target_angle), b::atan_enc.update(b::e_angle) - b::atan_enc_bias);
 //		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 
 		//LED制御
