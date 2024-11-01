@@ -11,14 +11,14 @@
 #include "board_params.hpp"
 #include "motor.hpp"
 
-#include "CommonLib/MotorMath/sin_table.hpp"
+#include "CommonLib/Math/sin_table.hpp"
 #include "CommonLib/pwm.hpp"
 #include "CommonLib/pid.hpp"
 #include "CommonLib/programable_LED.hpp"
 #include "CommonLib/LED_pattern.hpp"
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
-#include "CommonLib/filter.hpp"
+#include "CommonLib/Math/filter.hpp"
 
 #include "main.h"
 #include "adc.h"
@@ -41,7 +41,6 @@ namespace BoardElement{
 
 	inline q15_t e_angle;
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
-	inline auto enc_filter = SabaneLib::LowpassFilter<float>{0.05};
 	inline auto target_filter = SabaneLib::LowpassFilter<float>{0.05};
 
 	inline auto motor = LMDLib::Motor{
@@ -52,17 +51,17 @@ namespace BoardElement{
 
 	namespace PIDIns{
 		inline auto position = SabaneLib::PIDBuilder(1000.0f)
-				.set_gain(0.000'1f, 0.000'1f, 0.0f)
+				.set_gain(0.000'1f, 0.000'05f, 0.0f)
 				.set_limit(0.0f)
 				.build();
 
-		inline auto d_current = SabaneLib::PIDBuilder(18000.0f)
-				.set_gain(0.1f, 0.8f, 0.0f)
+		inline auto d_current = SabaneLib::PIBuilder(18000.0f)
+				.set_gain(0.1f, 0.8f)
 				.set_limit(1.0f)
 				.build();
 
-		inline auto q_current = SabaneLib::PIDBuilder(18000.0f)
-				.set_gain(0.1f, 0.8f, 0.0f)
+		inline auto q_current = SabaneLib::PIBuilder(18000.0f)
+				.set_gain(0.1f, 0.8f)
 				.set_limit(1.0f)
 				.build();
 	}

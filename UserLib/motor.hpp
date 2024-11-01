@@ -11,7 +11,7 @@
 #include "main.h"
 
 #include "CommonLib/pwm.hpp"
-#include "CommonLib/MotorMath/motor_math.hpp"
+#include "CommonLib/Math/motor_math.hpp"
 #include "CommonLib/encoder.hpp"
 
 #include <functional>
@@ -47,6 +47,12 @@ namespace LMDLib{
 			u.out(tmp.u*0.4f + 0.5f);
 			v.out(tmp.v*0.4f + 0.5f);
 			w.out(tmp.w*0.4f + 0.5f);
+		}
+
+		void move(SabaneLib::MotorMath::UVW uvw_v){
+			u.out(uvw_v.u*0.4f + 0.5f);
+			v.out(uvw_v.v*0.4f + 0.5f);
+			w.out(uvw_v.w*0.4f + 0.5f);
 		}
 	};
 }

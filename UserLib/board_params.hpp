@@ -30,6 +30,7 @@ namespace BoardLib{
 	namespace Coef{
 		constexpr float mm_to_q15rad = static_cast<float>(0xFFFF) / 30.0f;
 		constexpr float q15rad_to_mm = 30.0f / static_cast<float>(0xFFFF);
+		constexpr float vbus_r_gain = (169.0f + 18.0f)/18.0f;
 	}
 
 
