@@ -54,7 +54,8 @@ namespace SabaneLib::MotorMath{
 
 		DQ to_dq(SinCos sincos);
 		AB to_ab(void);
-		UVW sv_modulation(void);//空間ベクトル変調
+		UVW& sv_modulation(void);//空間ベクトル変調
+		UVW& sperimposition(float sub);//信号重畳
 	};
 
 	//struct DQ functions
@@ -103,15 +104,24 @@ namespace SabaneLib::MotorMath{
 		return ab_data;
 	}
 
-	inline UVW UVW::sv_modulation(void){
+	inline UVW& UVW::sv_modulation(void){
 		float max = u>v ? u : v;
 		max = max>w ? max : w;
 		float min = u<v ? u : v;
 		min = min<w ? min : w;
 
 		float ave = (max + min)*0.5f;
+		u -= ave;
+		v -= ave;
+		w -= ave;
 
-		return UVW{.u = this->u - ave,.v = this->v - ave,.w = this->w - ave };
+		return *this;
+	}
+	inline UVW& UVW::sperimposition(float bias){
+		u += bias;
+		v += bias;
+		w += bias;
+		return *this;
 	}
 }
 
