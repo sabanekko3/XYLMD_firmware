@@ -40,7 +40,7 @@ namespace BoardElement{
 	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
 
 	inline q15_t e_angle;
-	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,18000.f};
+	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
 	inline auto target_filter = SabaneLib::LowpassFilter<float>{0.05};
 
 	inline auto motor = LMDLib::Motor{
