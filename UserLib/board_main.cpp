@@ -84,7 +84,7 @@ extern "C" void main_(void){
 
 		if(not HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin)){
 			b::atan_enc_bias = b::atan_enc.get_angle();
-			b::PIDIns::position.set_limit(4.0f);
+			b::PIDIns::position.set_limit(2.0f);
 			b::led.play(SabaneLib::LEDPattern::setting);
 			b::target_angle = 0.0f * blib::Coef::mm_to_q15rad;
 			//move_test();
@@ -119,7 +119,7 @@ extern "C" void main_(void){
 			  }
 		}
 
-		//print_param();
+		b::TestFunctions::print_param();
 
 	}
 }

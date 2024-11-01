@@ -56,13 +56,13 @@ namespace BoardElement{
 				.set_limit(0.0f)
 				.build();
 
-		inline auto d_current = SabaneLib::PIDBuilder(18000.0f)
-				.set_gain(0.1f, 0.8f, 0.0f)
+		inline auto d_current = SabaneLib::PIBuilder(18000.0f)
+				.set_gain(0.1f, 0.8f)
 				.set_limit(1.0f)
 				.build();
 
-		inline auto q_current = SabaneLib::PIDBuilder(18000.0f)
-				.set_gain(0.1f, 0.8f, 0.0f)
+		inline auto q_current = SabaneLib::PIBuilder(18000.0f)
+				.set_gain(0.1f, 0.8f)
 				.set_limit(1.0f)
 				.build();
 	}
