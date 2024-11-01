@@ -11,15 +11,12 @@
 #include "q_format.hpp"
 #include "motor_math.hpp"
 #include "arm_math.h"
-
 #define __FPU_PRESENT
 #define ARM_MATH_CM4
+
 #include <cmath>
 #include <cassert>
 #include <functional>
-
-//#define SIN_TABLE_COMPACT_MODE
-
 
 
 namespace SabaneLib::MotorMath{

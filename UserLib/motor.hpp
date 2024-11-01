@@ -11,7 +11,7 @@
 #include "main.h"
 
 #include "CommonLib/pwm.hpp"
-#include "CommonLib/MotorMath/motor_math.hpp"
+#include "CommonLib/Math/motor_math.hpp"
 #include "CommonLib/encoder.hpp"
 
 #include <functional>

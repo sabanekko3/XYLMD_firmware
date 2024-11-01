@@ -11,14 +11,14 @@
 #include "board_params.hpp"
 #include "motor.hpp"
 
-#include "CommonLib/MotorMath/sin_table.hpp"
+#include "CommonLib/Math/sin_table.hpp"
 #include "CommonLib/pwm.hpp"
 #include "CommonLib/pid.hpp"
 #include "CommonLib/programable_LED.hpp"
 #include "CommonLib/LED_pattern.hpp"
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
-#include "CommonLib/filter.hpp"
+#include "CommonLib/Math/filter.hpp"
 
 #include "main.h"
 #include "adc.h"
