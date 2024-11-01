@@ -20,47 +20,54 @@
 
 //#define SIN_TABLE_COMPACT_MODE
 
+
+
 namespace SabaneLib::MotorMath{
-	template<int PERIOD_N>
+	enum class TableMode: size_t{
+		NORMAL = 1,
+		COMPACT = 4
+	};
+
+	template<size_t PERIOD_N,TableMode M = TableMode::NORMAL>
 	class SinTable{
 	private:
 		static constexpr size_t PERIOD = 1u << PERIOD_N;
-#ifdef SIN_TABLE_COMPACT_MODE
-		float table[PERIOD/4];
-#else
-		float table[PERIOD];
-#endif
+
+		float table[PERIOD/static_cast<size_t>(M)];
+
 	public:
 		SinTable(void){}
 
 		void generate(std::function<float(float)> func = [](float rad)->float{return std::sin(rad);}){
-
-#ifdef SIN_TABLE_COMPACT_MODE
-			for(size_t i = 0; i < PERIOD/4; i++) { table[i] = func(static_cast<float>(i)/static_cast<float>(PERIOD)*2*M_PI); }
-#else
-			for(size_t i = 0; i < PERIOD; i++) { table[i] = func(static_cast<float>(i)/static_cast<float>(PERIOD)*2*M_PI); }
-#endif
-		}
-
-#ifdef SIN_TABLE_COMPACT_MODE
-		float sin(q31_t rad)const{
-			size_t index = (rad >> (32-PERIOD_N)) & (PERIOD-1);
-			if(index >= PERIOD*3/4){
-				return -table[PERIOD - index - 1];
-			}else if(index >= PERIOD/2){
-				return -table[index - PERIOD/2];
-			}else if(index >= PERIOD/4){
-				return table[PERIOD/2 - index - 1];
-			}else{
-				return table[index];
+			if constexpr(M == TableMode::NORMAL){
+				for(size_t i = 0; i < PERIOD; i++) {
+					table[i] = func(static_cast<float>(i)/static_cast<float>(PERIOD)*2*M_PI);
+				}
+			}else if(M==TableMode::COMPACT){
+				for(size_t i = 0; i < PERIOD/static_cast<size_t>(M); i++) {
+					table[i] = func(static_cast<float>(i)/static_cast<float>(PERIOD)*2*M_PI);
+				}
 			}
 		}
-#else
+
 		float sin(q15_t rad)const{
-			size_t index = (rad >> (16-PERIOD_N)) & (PERIOD-1);
-			return table[index];
+			if constexpr(M == TableMode::NORMAL){
+				size_t index = (rad >> (16-PERIOD_N)) & (PERIOD-1);
+				return table[index];
+
+			}else if(M == TableMode::COMPACT){
+				size_t index = (rad >> (16-PERIOD_N)) & (PERIOD-1);
+				if(index >= PERIOD*3/4){
+					return -table[PERIOD - index - 1];
+				}else if(index >= PERIOD/2){
+					return -table[index - PERIOD/2];
+				}else if(index >= PERIOD/4){
+					return table[PERIOD/2 - index - 1];
+				}else{
+					return table[index];
+				}
+			}
 		}
-#endif
 
 		float cos(q15_t rad) const { return this->sin(static_cast<q15_t>(rad + Q15Def::pi_2));}
 
