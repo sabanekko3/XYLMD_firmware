@@ -8,20 +8,21 @@
 #ifndef LED_PATTERN_HPP_
 #define LED_PATTERN_HPP_
 
-#include "programable_LED.hpp"
+#include "programable_PWM.hpp"
+
 namespace SabaneLib::LEDPattern{
 
-	inline constexpr LEDState ok[] = {
+	inline constexpr PWMState ok[] = {
 		{1.0f,10},
 		{0.0f,10},
-		end
+		ProgramablePWM::end_of_pwm_sequence
 	};
-	inline constexpr LEDState setting[]={
+	inline constexpr PWMState setting[]={
 		{1.0f,100},
 		{0.0f,100},
 		{1.0f,700},
 		{0.0f,100},
-		end
+		ProgramablePWM::end_of_pwm_sequence
 	};
 }
 

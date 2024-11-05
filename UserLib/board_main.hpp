@@ -10,11 +10,12 @@
 
 #include "board_params.hpp"
 #include "motor.hpp"
+#include "gpio_handler.hpp"
 
 #include "CommonLib/Math/sin_table.hpp"
 #include "CommonLib/pwm.hpp"
 #include "CommonLib/pid.hpp"
-#include "CommonLib/programable_LED.hpp"
+#include "CommonLib/programable_PWM.hpp"
 #include "CommonLib/LED_pattern.hpp"
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
@@ -34,14 +35,14 @@
 
 namespace BoardElement{
 
-	inline constexpr auto my_axis = BoardLib::Axis::X;
+	inline constexpr auto my_axis = BoardLib::Axis::Y;
 
-	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
-	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
+	inline auto table = SabaneLib::Math::SinTable<12>{};
+	inline auto cordic = SabaneLib::FastMathCordic{CORDIC};
 
 	inline q15_t e_angle;
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
-	inline auto target_filter = SabaneLib::LowpassFilter<float>{0.05};
+	inline auto target_filter = SabaneLib::Math::LowpassFilter<float>{0.05};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
@@ -73,20 +74,20 @@ namespace BoardElement{
 	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
 		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_tx_buff),
 		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_rx_buff),
-		SabaneLib::FdCanRxFifo[0]
+		SabaneLib::FdCanRxFifo0
 	};
 
-	inline auto led = SabaneLib::LEDLLGpio{LED_GPIO_Port,LED_Pin};
-
+	//inline auto led = SabaneLib::ProgramablePWM{std::make_unique<BoardLib::PWMDummy>(LED_GPIO_Port,LED_Pin)};
+	inline auto led = SabaneLib::ProgramablePWM{std::make_unique<SabaneLib::PWMSoft>(LED_GPIO_Port,LED_Pin,10)};
 
 	//変数
 	inline float vbus_voltage = 0.0f;
 
-	inline SabaneLib::MotorMath::UVW uvw_i = {.u=0.0f, .v=0.0f, .w=0.0f};
-	inline SabaneLib::MotorMath::AB ab_i = {.a = 0.0f, .b = 0.0f};
-	inline SabaneLib::MotorMath::DQ dq_i = {.d = 0.0f, .q = 0.0f};
+	inline SabaneLib::Math::UVW uvw_i = {.u=0.0f, .v=0.0f, .w=0.0f};
+	inline SabaneLib::Math::AB ab_i = {.a = 0.0f, .b = 0.0f};
+	inline SabaneLib::Math::DQ dq_i = {.d = 0.0f, .q = 0.0f};
 
-	inline SabaneLib::MotorMath::DQ target_i = {.d = 0.0f, .q =0.0f};
+	inline SabaneLib::Math::DQ target_i = {.d = 0.0f, .q =0.0f};
 
 	inline float target_angle = 0.0f;
 

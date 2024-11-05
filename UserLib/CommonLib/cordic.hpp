@@ -8,14 +8,14 @@
 #ifndef CORDIC_HPP_
 #define CORDIC_HPP_
 
-#include "math.h"
 #include "main.h"
 
 #include <cassert>
+#include <utility>
 
 #ifdef HAL_CORDIC_MODULE_ENABLED
 
-namespace SabaneLib::MotorMath{
+namespace SabaneLib{
 
 enum class CordicMode:uint32_t{
 	COS_SIN,
@@ -31,8 +31,8 @@ enum class CordicMode:uint32_t{
 
 class CordicHandler{
 protected:
-	CORDIC_TypeDef *cordic;
-public:
+	CORDIC_TypeDef *const cordic;
+
 	constexpr uint32_t generate_CSR(CordicMode mode,bool input_2param,bool output_2param,uint32_t precision,uint32_t scale){
 		assert(1 <= precision || precision <= 15);
 		assert(scale <= 15);
@@ -47,6 +47,7 @@ public:
 			); //Q15format DMAWEN,DMAREN and IEN are disable.
 	}
 
+public:
 	CordicHandler(CORDIC_TypeDef *_cordic)
 	:cordic(_cordic){
 		//nop
@@ -73,51 +74,46 @@ public:
 		return cordic->RDATA;
 	}
 
-	void read_ans(q15_t &ans1,q15_t &ans2){
+	std::pair<q15_t,q15_t> read_ans_pair(void){
 		uint32_t tmp = cordic->RDATA;
-		ans1 = tmp;
-		ans2 = tmp>>16;
+		return std::pair<q15_t,q15_t>{tmp,tmp>>16};
 	}
-
-	virtual ~CordicHandler(){}
 };
 
 
 
-class FastMathCordic : public CordicHandler{
+class FastMathCordic{
 public:
+	CordicHandler handler;
+
 	FastMathCordic(CORDIC_TypeDef *_cordic)
-	:CordicHandler{_cordic}{
+	:handler(_cordic){
 	}
 
 	void start_sincos(float rad){
-		cordic->CSR = this->generate_CSR(CordicMode::SIN_COS,false,true,4,0);
-		set_param(rad_to_q15(rad));
+		handler.set_mode(CordicMode::SIN_COS,false,true,4,0);
+		handler.set_param(Math::rad_to_q15(rad));
 	}
 
-	SinCos get_sincos(void){
-		SinCos tmp;
-		q15_t s,c;
-		read_ans(s,c);
-		tmp.sin = q15_to_float(s);
-		tmp.cos = q15_to_float(c);
-		return tmp;
+	Math::SinCos get_sincos(void){
+		auto [s,c] = handler.read_ans_pair();
+		return Math::SinCos{.sin = Math::q15_to_float(s),.cos=Math::q15_to_float(c)};
 	}
 
 	void start_atan2(float x,float y){
-		cordic->CSR = this->generate_CSR(CordicMode::PHASE_MODULUS,true,false,4,0);
-		set_param(float_to_q15(x),float_to_q15(y));
+		handler.set_mode(CordicMode::PHASE_MODULUS,true,false,4,0);
+		handler.set_param(Math::float_to_q15(x),Math::float_to_q15(y));
 	}
 	void start_atan2(q15_t x,q15_t y){
-		cordic->CSR = this->generate_CSR(CordicMode::PHASE_MODULUS,true,false,4,0);
-		set_param(x,y);
+		handler.set_mode(CordicMode::PHASE_MODULUS,true,false,4,0);
+		handler.set_param(x,y);
 	}
 
 	float get_atan2(void){
-		return q15_to_rad(read_ans());
+		return Math::q15_to_rad(handler.read_ans());
 	}
 	q15_t get_atan2_q15(void){
-		return read_ans();
+		return handler.read_ans();
 	}
 };
 

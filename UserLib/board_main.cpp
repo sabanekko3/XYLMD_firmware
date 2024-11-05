@@ -54,7 +54,7 @@ extern "C" void main_(void){
 	//テーブル初期化
 	b::table.generate([](float rad)->float{
 		b::cordic.start_sincos(rad);
-		while(not b::cordic.is_avilable());
+		while(not b::cordic.handler.is_avilable());
 		return b::cordic.get_sincos().sin;
 	});
 
@@ -78,7 +78,7 @@ extern "C" void main_(void){
 	b::PIDIns::position.set_limit(0.0f);
 	b::atan_enc_bias = b::atan_enc.get_angle();
 
-	b::led.play(slib::LEDPattern::ok);
+	b::led.play(slib::LEDPattern::setting);
 
 	while(1){
 

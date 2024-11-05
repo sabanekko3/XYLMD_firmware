@@ -11,7 +11,7 @@
 #include <concepts>
 #include <type_traits>
 
-namespace SabaneLib{
+namespace SabaneLib::Math{
 
 	template <class T>
 	concept Arithmetic = std::is_arithmetic_v<T>;

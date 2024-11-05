@@ -47,18 +47,21 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 	if(adc_flag == 0b11){
 		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		//Cordicの読み込みとuvw->dq変換
-		while(not b::cordic.is_avilable()){}
-		b::e_angle = b::cordic.read_ans();
+		while(not b::cordic.handler.is_avilable()){}
+		b::e_angle = b::cordic.handler.read_ans();
+
+//		b::target_i.q = b::PIDIns::position(b::target_filter(b::target_angle), b::atan_enc.update(b::e_angle) - b::atan_enc_bias);
 
 		//電流制御
 		b::dq_i = b::ab_i.to_dq(b::table.sin_cos(b::e_angle));
-		auto dq_v = slib::MotorMath::DQ{
+		auto dq_v = slib::Math::DQ{
 				.d = b::PIDIns::d_current(b::target_i.d,b::dq_i.d),
 				.q = b::PIDIns::q_current(b::target_i.q,b::dq_i.q)};
 
 		constexpr float coef = -1.0f/6.0f;
 		b::motor.move(dq_v.to_uvw(b::table.sin_cos(b::e_angle)).sperimposition(b::table.sin(static_cast<q15_t>(b::e_angle*3))*coef));
 
+		b::led.pwm->update();
 		adc_flag = 0;
 		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
@@ -76,6 +79,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		//LED制御
 		b::led.update();
+		//b::led.out_weak(0.5f);
 	}
 }
 

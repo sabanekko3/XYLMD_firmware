@@ -19,7 +19,7 @@
 #include <functional>
 
 
-namespace SabaneLib::MotorMath{
+namespace SabaneLib::Math{
 	enum class TableMode: size_t{
 		NORMAL = 1,
 		COMPACT = 4

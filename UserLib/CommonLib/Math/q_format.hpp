@@ -10,7 +10,7 @@
 
 #include "arm_math.h"
 
-namespace SabaneLib{
+namespace SabaneLib::Math{
 	////////////////////////////////
 	//Q31 format support funcitons//
 	////////////////////////////////
@@ -51,8 +51,8 @@ namespace SabaneLib{
 	////////////////////////////////
 	namespace Q15Def{
 		constexpr q15_t pi = 0x7FFF; //厳密には0x8000がpiだが-piと混ざり支障が出るため0x7FFFとする
-		constexpr q31_t pi_2 = pi/2; // PI/2
-		constexpr q31_t pi_3 = pi/3; // PI/3
+		constexpr q15_t pi_2 = pi/2; // PI/2
+		constexpr q15_t pi_3 = pi/3; // PI/3
 	}
 
 	constexpr q15_t float_to_q15(float f){
