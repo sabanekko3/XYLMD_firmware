@@ -67,18 +67,26 @@ namespace BoardElement{
 				.build();
 	}
 
-	//静的にunique_ptrを生成する
-	//make_uniqueはnewを使用しているため微妙
-	inline auto can_tx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
-	inline auto can_rx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
-	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
-		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_tx_buff),
-		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_rx_buff),
+	//配置newするためのメモリープール
+	namespace TmpMemoryPool{
+		inline uint8_t can_tx_buff[sizeof(SabaneLib::RingBuffer<SabaneLib::CanFrame,5>)];
+		inline uint8_t can_rx_buff[sizeof(SabaneLib::RingBuffer<SabaneLib::CanFrame,5>)];
+
+		inline uint8_t led_pwm[sizeof(SabaneLib::PWMSoft)];
+	}
+
+	inline auto can = SabaneLib::FdCanComm{
+		&hfdcan1,
+		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(
+				new(TmpMemoryPool::can_tx_buff) SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{}),
+		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(
+				new(TmpMemoryPool::can_rx_buff) SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{}),
 		SabaneLib::FdCanRxFifo0
 	};
 
-	//inline auto led = SabaneLib::ProgramablePWM{std::make_unique<BoardLib::PWMDummy>(LED_GPIO_Port,LED_Pin)};
-	inline auto led = SabaneLib::ProgramablePWM{std::make_unique<SabaneLib::PWMSoft>(LED_GPIO_Port,LED_Pin,10)};
+	inline auto led = SabaneLib::ProgramablePWM{
+		std::unique_ptr<SabaneLib::PWMSoft> (new(TmpMemoryPool::led_pwm) SabaneLib::PWMSoft{LED_GPIO_Port,LED_Pin,10})
+	};
 
 	//変数
 	inline float vbus_voltage = 0.0f;

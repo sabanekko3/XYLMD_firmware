@@ -40,7 +40,7 @@ namespace SabaneLib{
 
 
 	class FdCanComm:public ICan{
-		FDCAN_HandleTypeDef *fdcan;
+		FDCAN_HandleTypeDef* const fdcan;
 
 		std::unique_ptr<IRingBuffer<CanFrame> > rx_buff;
 		std::unique_ptr<IRingBuffer<CanFrame> > tx_buff;

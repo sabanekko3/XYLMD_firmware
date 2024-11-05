@@ -25,27 +25,27 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 
 	static int adc_flag = 0;
 	if(hadc == &hadc1){
-		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		q15_t qcos = -(static_cast<q15_t>(ADC1->JDR2)-static_cast<q15_t>(2154))*16;
 		q15_t qsin =  (static_cast<q15_t>(ADC1->JDR1)-static_cast<q15_t>(2142))*16;
 
 		b::cordic.start_atan2(qcos,qsin);
 
 		adc_flag |= 0b01;
-		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}else if(hadc == &hadc2){
-		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		b::uvw_i.u = blib::adc_to_current(ADC2->JDR1);
 		b::uvw_i.v = blib::adc_to_current(ADC2->JDR2);
 		b::ab_i = b::uvw_i.to_ab();
 
 		b::vbus_voltage = blib::adc_to_voltage(ADC2->JDR3, blib::Coef::vbus_r_gain);
 		adc_flag |= 0b10;
-		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
 
 	if(adc_flag == 0b11){
-		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		//Cordicの読み込みとuvw->dq変換
 		while(not b::cordic.handler.is_avilable()){}
 		b::e_angle = b::cordic.handler.read_ans();
@@ -63,7 +63,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 
 		b::led.pwm->update();
 		adc_flag = 0;
-		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
+//		LL_GPIO_ResetOutputPin(LED_GPIO_Port,LED_Pin);
 	}
 
 }

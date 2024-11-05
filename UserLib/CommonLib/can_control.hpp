@@ -16,7 +16,7 @@ namespace SabaneLib{
 #ifdef HAL_CAN_MODULE_ENABLED
 	class CanComm:public ICan{
 	private:
-		CAN_HandleTypeDef *can;
+		CAN_HandleTypeDef* const can;
 		const uint32_t rx_fifo;
 		const uint32_t rx_filter_fifo;
 		const uint32_t rx_fifo_it;
