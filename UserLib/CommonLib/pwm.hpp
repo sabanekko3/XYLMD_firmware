@@ -15,8 +15,17 @@ namespace SabaneLib{
 
 	class IPWM{
 	public:
-		//0.0f~1.0fの範囲で入力
+		//duty比は0.0f~1.0fの範囲で入力
+		//duty setter
 		virtual void operator()(float val) = 0;
+		//duty getter
+		virtual float operator()(void)const = 0;
+
+		virtual void set_period(uint32_t _period) = 0;
+
+		virtual uint32_t get_period(void)const = 0;
+
+		//更新処理(ソフトウェアPWM用)
 		virtual void update(void) = 0;
 
 		virtual ~IPWM(){}
@@ -37,20 +46,29 @@ namespace SabaneLib{
 		}
 
 		void operator()(float duty) override{//0.0~1.0f
-			__HAL_TIM_SET_COMPARE(tim, ch, tim->Init.Period*duty);
+			__HAL_TIM_SET_COMPARE(tim, ch, static_cast<float>(__HAL_TIM_GET_AUTORELOAD(tim))*duty);
+		}
+
+		float operator()(void)const override{
+			return static_cast<float>(__HAL_TIM_GET_COMPARE(tim, ch))/static_cast<float>(__HAL_TIM_GET_AUTORELOAD(tim));
+		}
+
+		void set_period(uint32_t _period)override{
+			__HAL_TIM_SET_AUTORELOAD(tim, _period);
+		}
+
+		uint32_t get_period(void)const override{
+			return __HAL_TIM_GET_AUTORELOAD(tim);
 		}
 
 		void update(void)override{
 			//nop
 		}
 
-		float get_duty(void){
-			return static_cast<float>(__HAL_TIM_GET_COMPARE(tim, ch))/static_cast<float>(tim->Init.Period);
-		}
-
 		void start(void){
 			HAL_TIM_PWM_Start(tim, ch);
 			HAL_TIMEx_PWMN_Start(tim,ch);
+			tim->Instance->CR1 |= TIM_CR1_ARPE;//ARPEをセット 次回カウントリセット時にARRを適用
 			__HAL_TIM_SET_COMPARE(tim, ch,0);
 		}
 
@@ -82,16 +100,16 @@ namespace SabaneLib{
 			duty = val*static_cast<float>(period);
 		}
 
-		float get_duty(void)const{
+		float operator()(void)const override{
 			return static_cast<float>(duty)/static_cast<float>(period);
 		}
 
-		void set_period(uint32_t _period){
+		void set_period(uint32_t _period)override{
 			count = 0;
 			period = _period;
 		}
 
-		uint32_t get_period(void)const{
+		uint32_t get_period(void)const override{
 			return period;
 		}
 
@@ -102,6 +120,8 @@ namespace SabaneLib{
 			count = (count < period)*(count+1);
 			port->BSRR = pin << (16*(count >= duty));
 		}
+
+
 	};
 
 }

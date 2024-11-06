@@ -50,8 +50,6 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 		while(not b::cordic.handler.is_avilable()){}
 		b::e_angle = b::cordic.handler.read_ans();
 
-//		b::target_i.q = b::PIDIns::position(b::target_filter(b::target_angle), b::atan_enc.update(b::e_angle) - b::atan_enc_bias);
-
 		//電流制御
 		b::dq_i = b::ab_i.to_dq(b::table.sin_cos(b::e_angle));
 		auto dq_v = slib::Math::DQ{
@@ -79,7 +77,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		//LED制御
 		b::led.update();
-		//b::led.out_weak(0.5f);
 	}
 }
 

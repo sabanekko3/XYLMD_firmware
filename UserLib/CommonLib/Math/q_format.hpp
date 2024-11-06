@@ -11,6 +11,10 @@
 #include "arm_math.h"
 
 namespace SabaneLib::Math{
+
+	template<typename T>
+	concept QFromat = std::is_same_v<T, q15_t> || std::is_same_v<T, q31_t>;
+
 	////////////////////////////////
 	//Q31 format support funcitons//
 	////////////////////////////////
@@ -22,7 +26,7 @@ namespace SabaneLib::Math{
 
 	constexpr q31_t float_to_q31(float f){
 		constexpr float coef = static_cast<float>(0x8000'0000);
-		return static_cast<q31_t>( f * coef);
+		return static_cast<q31_t>(f * coef);
 	}
 
 	constexpr float q31_to_float(q31_t q){
