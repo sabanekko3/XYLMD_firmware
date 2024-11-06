@@ -11,6 +11,9 @@
 #include "can_if.hpp"
 #include "main.h"
 
+#include <memory>
+#include <cassert>
+
 #ifdef HAL_FDCAN_MODULE_ENABLED
 
 namespace SabaneLib{
@@ -22,24 +25,22 @@ namespace SabaneLib{
 		uint32_t it_buff;
 	};
 
-	constexpr FdCanRxFifoParams FdCanRxFifo[2] = {
-		FdCanRxFifoParams{
+	constexpr FdCanRxFifoParams FdCanRxFifo0 = {
 			FDCAN_RX_FIFO0,
 			FDCAN_FILTER_TO_RXFIFO0,
 			FDCAN_IT_RX_FIFO0_NEW_MESSAGE,
 			FDCAN_FLAG_RX_FIFO0_NEW_MESSAGE
-		},
-		FdCanRxFifoParams{
+	};
+	constexpr FdCanRxFifoParams FdCanRxFifo1 = {
 			FDCAN_RX_FIFO1,
 			FDCAN_FILTER_TO_RXFIFO1,
 			FDCAN_IT_RX_FIFO1_NEW_MESSAGE,
 			FDCAN_FLAG_RX_FIFO1_NEW_MESSAGE
-		}
 	};
 
 
 	class FdCanComm:public ICan{
-		FDCAN_HandleTypeDef *fdcan;
+		FDCAN_HandleTypeDef* const fdcan;
 
 		std::unique_ptr<IRingBuffer<CanFrame> > rx_buff;
 		std::unique_ptr<IRingBuffer<CanFrame> > tx_buff;
@@ -140,9 +141,11 @@ namespace SabaneLib{
 			}
 		}
 
-		void set_filter_free(uint32_t filter_no,bool is_ext_filter = false){
+		void set_filter_free(uint32_t filter_no,CanFilterMode fmode = CanFilterMode::ONLY_STD){
+			assert(fmode != CanFilterMode::STD_AND_EXT);
+
 			FDCAN_FilterTypeDef  filter;
-			filter.IdType = is_ext_filter?FDCAN_EXTENDED_ID:FDCAN_STANDARD_ID;
+			filter.IdType = fmode == CanFilterMode::ONLY_EXT ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
 			filter.FilterIndex = filter_no;
 			filter.FilterType = FDCAN_FILTER_MASK;
 			filter.FilterConfig = rx_fifo.filter;

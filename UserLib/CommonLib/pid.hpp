@@ -80,7 +80,7 @@ protected:
 	float kd;
 	float prev_error = 0.0f;
 
-	LowpassFilter<float> lpf;
+	Math::LowpassFilter<float> lpf;
 public:
 	PIDController(float _pid_freq,float _kp,float _ki,float _kd, float _k_anti_windup,float _limit_min = -FLT_MAX,float _limit_max = FLT_MAX,float lpf_gain = 0.15f):
 		PIController(_pid_freq,_kp,_ki,_k_anti_windup,_limit_min,_limit_max),

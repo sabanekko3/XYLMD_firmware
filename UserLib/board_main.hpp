@@ -12,13 +12,13 @@
 #include "motor.hpp"
 
 #include "CommonLib/Math/sin_table.hpp"
+#include "CommonLib/Math/filter.hpp"
 #include "CommonLib/pwm.hpp"
 #include "CommonLib/pid.hpp"
-#include "CommonLib/programable_LED.hpp"
+#include "CommonLib/programable_PWM.hpp"
 #include "CommonLib/LED_pattern.hpp"
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
-#include "CommonLib/Math/filter.hpp"
 
 #include "main.h"
 #include "adc.h"
@@ -34,14 +34,14 @@
 
 namespace BoardElement{
 
-	inline constexpr auto my_axis = BoardLib::Axis::X;
+	inline constexpr auto my_axis = BoardLib::Axis::Y;
 
-	inline auto table = SabaneLib::MotorMath::SinTable<12>{};
-	inline auto cordic = SabaneLib::MotorMath::FastMathCordic{CORDIC};
+	inline auto table = SabaneLib::Math::SinTable<12>{};
+	inline auto cordic = SabaneLib::FastMathCordic{CORDIC};
 
 	inline q15_t e_angle;
 	inline auto atan_enc = SabaneLib::ContinuableEncoder{16,1000.f};
-	inline auto target_filter = SabaneLib::LowpassFilter<float>{0.05};
+	inline auto target_filter = SabaneLib::Math::LowpassFilter<float>{0.05};
 
 	inline auto motor = LMDLib::Motor{
 		SabaneLib::PWMHard{&htim1,TIM_CHANNEL_2},
@@ -66,27 +66,35 @@ namespace BoardElement{
 				.build();
 	}
 
-	//静的にunique_ptrを生成する
-	//make_uniqueはnewを使用しているため微妙
-	inline auto can_tx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
-	inline auto can_rx_buff = SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{};
-	inline auto can = SabaneLib::FdCanComm{&hfdcan1,
-		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_tx_buff),
-		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(&can_rx_buff),
-		SabaneLib::FdCanRxFifo[0]
+	//配置newするためのメモリープール
+	namespace TmpMemoryPool{
+		inline uint8_t can_tx_buff[sizeof(SabaneLib::RingBuffer<SabaneLib::CanFrame,5>)];
+		inline uint8_t can_rx_buff[sizeof(SabaneLib::RingBuffer<SabaneLib::CanFrame,5>)];
+
+		inline uint8_t led_pwm[sizeof(SabaneLib::PWMSoft)];
+	}
+
+	inline auto can = SabaneLib::FdCanComm{
+		&hfdcan1,
+		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(
+				new(TmpMemoryPool::can_tx_buff) SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{}),
+		std::unique_ptr<SabaneLib::RingBuffer<SabaneLib::CanFrame,5>>(
+				new(TmpMemoryPool::can_rx_buff) SabaneLib::RingBuffer<SabaneLib::CanFrame,5>{}),
+		SabaneLib::FdCanRxFifo0
 	};
 
-	inline auto led = SabaneLib::LEDLLGpio{LED_GPIO_Port,LED_Pin};
-
+	inline auto led = SabaneLib::ProgramablePWM{
+		std::unique_ptr<SabaneLib::PWMSoft> (new(TmpMemoryPool::led_pwm) SabaneLib::PWMSoft{LED_GPIO_Port,LED_Pin,10})
+	};
 
 	//変数
 	inline float vbus_voltage = 0.0f;
 
-	inline SabaneLib::MotorMath::UVW uvw_i = {.u=0.0f, .v=0.0f, .w=0.0f};
-	inline SabaneLib::MotorMath::AB ab_i = {.a = 0.0f, .b = 0.0f};
-	inline SabaneLib::MotorMath::DQ dq_i = {.d = 0.0f, .q = 0.0f};
+	inline SabaneLib::Math::UVW uvw_i = {.u=0.0f, .v=0.0f, .w=0.0f};
+	inline SabaneLib::Math::AB ab_i = {.a = 0.0f, .b = 0.0f};
+	inline SabaneLib::Math::DQ dq_i = {.d = 0.0f, .q = 0.0f};
 
-	inline SabaneLib::MotorMath::DQ target_i = {.d = 0.0f, .q =0.0f};
+	inline SabaneLib::Math::DQ target_i = {.d = 0.0f, .q =0.0f};
 
 	inline float target_angle = 0.0f;
 

@@ -13,7 +13,7 @@
 #define __FPU_PRESENT
 #define ARM_MATH_CM4
 
-namespace SabaneLib::MotorMath{
+namespace SabaneLib::Math{
 	struct DQ;
 	struct AB;
 	struct UVW;

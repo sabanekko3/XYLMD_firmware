@@ -21,7 +21,7 @@ namespace LMDLib{
 		static constexpr uint16_t as5600_id = 0x36;
 		static constexpr size_t as5600_resolution = 12;
 
-		I2C_HandleTypeDef* i2c;
+		I2C_HandleTypeDef* const i2c;
 
 		uint8_t enc_val[2] = {0};
 
