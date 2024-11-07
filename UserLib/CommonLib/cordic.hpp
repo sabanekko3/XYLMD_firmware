@@ -29,6 +29,7 @@ enum class CordicMode:uint32_t{
 	SQRT,
 };
 
+template<Math::QFromat T>
 class CordicHandler{
 protected:
 	CORDIC_TypeDef *const cordic;
@@ -37,14 +38,27 @@ protected:
 		assert(1 <= precision || precision <= 15);
 		assert(scale <= 15);
 
-		return ((0b0 << 22) |      //CSR.ARGSIZE, input  16bit
-				(0b1 << 21) |      //CSR.RESSIZE, output 16bit
-				((input_2param?0b1:0) << 20) |          //CSR.NARGS
-//				((output_2param?0b1:0) << 19) |          //CSR.NRES
-				((scale & 0b111) << 8) |
-				((precision & 0b1111) << 4) |
-				((static_cast<uint32_t>(mode) & 0b1111) << 0)
-			); //Q15format DMAWEN,DMAREN and IEN are disable.
+		//DMAWEN,DMAREN and IEN are disable.
+		if constexpr(std::is_same<T,q15_t>()){
+			return ((0b1 << 22) |                      //CSR.ARGSIZE, input  16bit
+					(0b1 << 21) |                      //CSR.RESSIZE, output 16bit
+					((input_2param ? 0u:0u) << 20) |   //CSR.NARGS
+					((output_2param ? 0u:0u) << 19) |  //CSR.NRES
+					((scale & 0b111) << 8) |
+					((precision & 0b1111) << 4) |
+					((static_cast<uint32_t>(mode) & 0b1111) << 0)
+			);
+		}else if(std::is_same<T,q31_t>()){
+			return ((0b0 << 22) |                      //CSR.ARGSIZE, input  32bit
+					(0b0 << 21) |                      //CSR.RESSIZE, output 32bit
+					((input_2param ? 1u:0u) << 20) |   //CSR.NARGS
+					((output_2param ? 1u:0u) << 19) |  //CSR.NRES
+					((scale & 0b111) << 8) |
+					((precision & 0b1111) << 4) |
+					((static_cast<uint32_t>(mode) & 0b1111) << 0)
+			);
+		}
+		return 0;
 	}
 
 public:
@@ -57,42 +71,50 @@ public:
 		cordic->CSR = generate_CSR(mode,input_2param,output_2param,precision,scale);
 	}
 
-	void set_param(q15_t input1){
-		cordic->WDATA = input1 << 16;
+	void set_param(T input1){
+		cordic->WDATA = input1;
 	}
 
-	void set_param(q15_t input1,q15_t input2){
-		cordic->WDATA = input1 << 16;
-		cordic->WDATA = input2 << 16;
+	void set_param(T input1,T input2){
+		if constexpr(std::is_same<T,q15_t>()){
+			cordic->WDATA = static_cast<uint16_t>(input1) | (input2)<<16;
+		}else if(std::is_same<T,q31_t>()){
+			cordic->WDATA = input1;
+			cordic->WDATA = input2;
+		}
 	}
 
-	bool is_avilable(void)const{
+	bool is_available(void)const{
 		return (cordic->CSR&0x8000'0000)==0x8000'0000; //CSR::RRDY. 1 is ready
 	}
 
-	q15_t read_ans(void){
+	T read_ans(void){
 		return cordic->RDATA;
 	}
 
-	std::pair<q15_t,q15_t> read_ans_pair(void){
-		uint32_t tmp = cordic->RDATA;
-		return std::pair<q15_t,q15_t>{tmp,tmp>>16};
+	std::pair<T,T> read_ans_pair(void){
+		if constexpr(std::is_same<T,q15_t>()){
+			uint32_t tmp = cordic->RDATA;
+			return std::pair<T,T>{tmp&0xFFFF,(tmp>>16)&0xFFFF};
+		}else if(std::is_same<T,q31_t>()){
+			T tmp1 = cordic->RDATA;
+			T tmp2 = cordic->RDATA;
+			return std::pair<T,T>{tmp1,tmp2};
+		}
 	}
 };
 
-
-
 class FastMathCordic{
 public:
-	CordicHandler handler;
+	CordicHandler<q15_t> handler;
 
 	FastMathCordic(CORDIC_TypeDef *_cordic)
 	:handler(_cordic){
 	}
 
 	void start_sincos(float rad){
-		handler.set_mode(CordicMode::SIN_COS,false,true,4,0);
-		handler.set_param(Math::rad_to_q15(rad));
+		handler.set_mode(CordicMode::SIN_COS,true,true,4,0);
+		handler.set_param(Math::rad_to_q15(rad),0x7FFF);
 	}
 
 	Math::SinCos get_sincos(void){

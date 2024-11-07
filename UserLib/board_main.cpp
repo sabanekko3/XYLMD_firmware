@@ -19,29 +19,6 @@ extern "C" int _write(int file, char *ptr, int len) {
 	return len;
 }
 
-void b::TestFunctions::print_param(void){
-	printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f,%4.3f\r\n",
-			b::target_i.d,
-			b::target_i.q,
-			b::dq_i.d,
-			b::dq_i.q,
-			b::atan_enc.get_speed() * blib::Coef::q15rad_to_mm,
-			b::vbus_voltage
-	);
-	HAL_Delay(1);
-}
-
-void b::TestFunctions::move_test(){
-	while(1){
-		b::target_angle = 0.0f * blib::Coef::mm_to_q15rad;
-		HAL_Delay(500);
-		b::target_angle = 50.0f * blib::Coef::mm_to_q15rad;
-		HAL_Delay(500);
-		b::target_angle = 100.0f * blib::Coef::mm_to_q15rad;
-		HAL_Delay(500);
-	}
-}
-
 extern "C" void main_(void){
 	//アナログ系初期化
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
@@ -51,10 +28,12 @@ extern "C" void main_(void){
 	HAL_OPAMP_Start(&hopamp2);
 	HAL_OPAMP_Start(&hopamp3);
 
+//	b::TestFunctions::cordic_test();
+
 	//テーブル初期化
 	b::table.generate([](float rad)->float{
 		b::cordic.start_sincos(rad);
-		while(not b::cordic.handler.is_avilable());
+		while(not b::cordic.handler.is_available());
 		return b::cordic.get_sincos().sin;
 	});
 
@@ -120,6 +99,61 @@ extern "C" void main_(void){
 		}
 
 		b::TestFunctions::print_param();
-
 	}
 }
+
+void b::TestFunctions::print_param(void){
+	printf("%4.3f,%4.3f,%4.3f,%4.3f,%4.3f,%4.3f\r\n",
+			b::target_i.d,
+			b::target_i.q,
+			b::dq_i.d,
+			b::dq_i.q,
+			b::atan_enc.get_speed() * blib::Coef::q15rad_to_mm,
+			b::vbus_voltage
+	);
+	HAL_Delay(1);
+}
+
+void b::TestFunctions::move_test(){
+	while(1){
+		b::target_angle = 0.0f * blib::Coef::mm_to_q15rad;
+		HAL_Delay(500);
+		b::target_angle = 50.0f * blib::Coef::mm_to_q15rad;
+		HAL_Delay(500);
+		b::target_angle = 100.0f * blib::Coef::mm_to_q15rad;
+		HAL_Delay(500);
+	}
+}
+
+void b::TestFunctions::cordic_test(void){
+	auto ch = slib::CordicHandler<q15_t>{CORDIC};
+	q15_t angle = 0;
+	while(1){
+		ch.set_mode(slib::CordicMode::SIN_COS,true,true,4);
+		ch.set_param(angle,0x7FFF);
+		auto [s,c] = ch.read_ans_pair();
+
+		ch.set_mode(slib::CordicMode::PHASE_MODULUS,true,true,4);
+		ch.set_param(c,s);
+		while(not ch.is_available());
+		auto [r,m] = ch.read_ans_pair();
+
+		printf("%4.3f,%4.3f,%4.3f,%4.3f\r\n",
+				slib::Math::q15_to_rad(angle),
+				slib::Math::q15_to_float(s),
+				slib::Math::q15_to_float(c),
+				slib::Math::q15_to_rad(r));
+
+//		printf("%4x,%4x,%8x,%4.3f,%4.3f,%4.3f,%4.3f,%d,%d\r\n",
+//				c,s,static_cast<int16_t>(c) | (static_cast<int32_t>(s)<<16),
+//				slib::Math::q15_to_rad(angle),
+//				slib::Math::q15_to_float(s),
+//				slib::Math::q15_to_float(c),
+//				slib::Math::q15_to_rad(r),
+//				t1,
+//				t2);
+		angle += 0xFF;
+		HAL_Delay(10);
+	}
+}
+

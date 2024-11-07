@@ -47,7 +47,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc){
 	if(adc_flag == 0b11){
 //		LL_GPIO_SetOutputPin(LED_GPIO_Port,LED_Pin);
 		//Cordicの読み込みとuvw->dq変換
-		while(not b::cordic.handler.is_avilable()){}
+		while(not b::cordic.handler.is_available()){}
 		b::e_angle = b::cordic.handler.read_ans();
 
 		//電流制御

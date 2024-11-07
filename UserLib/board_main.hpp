@@ -103,6 +103,7 @@ namespace BoardElement{
 	namespace TestFunctions{
 		void print_param(void);
 		void move_test(void);
+		void cordic_test(void);
 	}
 }
 
