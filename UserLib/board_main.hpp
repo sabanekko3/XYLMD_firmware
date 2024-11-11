@@ -10,13 +10,13 @@
 
 #include "board_params.hpp"
 #include "motor.hpp"
+#include "LED_pattern.hpp"
 
 #include "CommonLib/Math/sin_table.hpp"
 #include "CommonLib/Math/filter.hpp"
 #include "CommonLib/pwm.hpp"
 #include "CommonLib/pid.hpp"
 #include "CommonLib/programable_PWM.hpp"
-#include "CommonLib/LED_pattern.hpp"
 #include "CommonLib/cordic.hpp"
 #include "CommonLib/fdcan_control.hpp"
 
@@ -36,7 +36,7 @@ namespace BoardElement{
 
 	inline constexpr auto my_axis = BoardLib::Axis::Y;
 
-	inline auto table = SabaneLib::Math::SinTable<12>{};
+	inline constexpr auto table = SabaneLib::Math::SinTable<12>{};
 	inline auto cordic = SabaneLib::FastMathCordic{CORDIC};
 
 	inline q15_t e_angle;
