@@ -117,8 +117,9 @@ namespace SabaneLib{
 		void update(void)override{
 			//bool*intの計算となっているので諸説
 			//条件分岐より早いので採用
-			count = (count < period)*(count+1);
-			port->BSRR = pin << (16*(count >= duty));
+			//C言語においてstatic_cast<int>(bool)は0 or 1が保証されているようだ
+			count = static_cast<int>(count < period)*(count+1);
+			port->BSRR = pin << (16*static_cast<int>(count >= duty));
 		}
 
 

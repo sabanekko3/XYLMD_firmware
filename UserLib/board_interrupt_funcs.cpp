@@ -12,12 +12,12 @@ namespace blib = BoardLib;
 namespace slib = SabaneLib;
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs){
-	b::led.play(slib::LEDPattern::ok);
+	b::led.play(blib::LEDPattern::ok);
 	b::can.rx_interrupt_task();
 }
 
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes){
-	b::led.play(slib::LEDPattern::ok);
+	b::led.play(blib::LEDPattern::ok);
 	b::can.tx_interrupt_task();
 }
 

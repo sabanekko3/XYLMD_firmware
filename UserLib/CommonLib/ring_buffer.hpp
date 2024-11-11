@@ -12,16 +12,6 @@
 
 namespace SabaneLib{
 
-	enum class BuffSize:size_t{
-		SIZE2 = 1,
-		SIZE4,
-		SIZE8,
-		SIZE16,
-		SIZE32,
-		SIZE64,
-		SIZE128,
-	};
-
 	template<typename T>
 	class IRingBuffer{
 	public:

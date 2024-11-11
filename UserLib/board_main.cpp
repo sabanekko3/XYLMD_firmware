@@ -31,11 +31,12 @@ extern "C" void main_(void){
 //	b::TestFunctions::cordic_test();
 
 	//テーブル初期化
-	b::table.generate([](float rad)->float{
-		b::cordic.start_sincos(rad);
-		while(not b::cordic.handler.is_available());
-		return b::cordic.get_sincos().sin;
-	});
+//	b::table.generate([](float rad)->float{
+//		b::cordic.start_sincos(rad);
+//		while(not b::cordic.handler.is_available());
+//		return b::cordic.get_sincos().sin;
+//	});
+//	b::table.generate();
 
 	//CAN初期化
 	LL_GPIO_SetOutputPin(CAN_R_GPIO_Port,CAN_R_Pin);
@@ -57,14 +58,14 @@ extern "C" void main_(void){
 	b::PIDIns::position.set_limit(0.0f);
 	b::atan_enc_bias = b::atan_enc.get_angle();
 
-	b::led.play(slib::LEDPattern::setting);
+	b::led.play(blib::LEDPattern::setting);
 
 	while(1){
 
 		if(not HAL_GPIO_ReadPin(SW_GPIO_Port,SW_Pin)){
 			b::atan_enc_bias = b::atan_enc.get_angle();
 			b::PIDIns::position.set_limit(2.0f);
-			b::led.play(SabaneLib::LEDPattern::setting);
+			b::led.play(blib::LEDPattern::setting);
 			b::target_angle = 0.0f * blib::Coef::mm_to_q15rad;
 			//move_test();
 		}

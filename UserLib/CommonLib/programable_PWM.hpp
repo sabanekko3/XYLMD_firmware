@@ -14,17 +14,17 @@
 #include <memory>
 
 namespace SabaneLib{
-
 	struct PWMState{
 		float power;
 		uint32_t interval;
 	};
-	inline bool operator==(const PWMState& s1,const PWMState& s2){
-		return (s1.power == s2.power) && (s1.interval == s2.interval);
-	}
+}
 
+inline bool operator==(const SabaneLib::PWMState& s1,const SabaneLib::PWMState& s2){
+	return (s1.power == s2.power) && (s1.interval == s2.interval);
+}
 
-
+namespace SabaneLib{
 	class ProgramablePWM{
 	private:
 		const PWMState *playing_pattern = nullptr;
@@ -76,6 +76,8 @@ namespace SabaneLib{
 		}
 	};
 }
+
+
 
 
 

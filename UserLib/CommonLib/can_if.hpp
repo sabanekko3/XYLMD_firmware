@@ -23,7 +23,7 @@ namespace SabaneLib{
 		bool is_remote=false;
 
 		ByteWriter writer(void){
-			return ByteWriter(data,sizeof(data),data_length);
+			return ByteWriter(data,sizeof(data), data_length);
 		}
 		ByteReader reader(void)const{
 			return ByteReader(data,sizeof(data));
