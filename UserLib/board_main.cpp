@@ -20,6 +20,8 @@ extern "C" int _write(int file, char *ptr, int len) {
 }
 
 extern "C" void main_(void){
+//	b::TestFunctions::cordic_test();
+
 	//アナログ系初期化
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
@@ -27,16 +29,6 @@ extern "C" void main_(void){
 	HAL_OPAMP_Start(&hopamp1);
 	HAL_OPAMP_Start(&hopamp2);
 	HAL_OPAMP_Start(&hopamp3);
-
-//	b::TestFunctions::cordic_test();
-
-	//テーブル初期化
-//	b::table.generate([](float rad)->float{
-//		b::cordic.start_sincos(rad);
-//		while(not b::cordic.handler.is_available());
-//		return b::cordic.get_sincos().sin;
-//	});
-//	b::table.generate();
 
 	//CAN初期化
 	LL_GPIO_SetOutputPin(CAN_R_GPIO_Port,CAN_R_Pin);
@@ -128,7 +120,7 @@ void b::TestFunctions::move_test(){
 
 void b::TestFunctions::cordic_test(void){
 	auto ch = slib::CordicHandler<q15_t>{CORDIC};
-	q15_t angle = 0;
+	q31_t angle = 0;
 	while(1){
 		ch.set_mode(slib::CordicMode::SIN_COS,true,true,4);
 		ch.set_param(angle,0x7FFF);
@@ -139,11 +131,15 @@ void b::TestFunctions::cordic_test(void){
 		while(not ch.is_available());
 		auto [r,m] = ch.read_ans_pair();
 
-		printf("%4.3f,%4.3f,%4.3f,%4.3f\r\n",
-				slib::Math::q15_to_rad(angle),
-				slib::Math::q15_to_float(s),
-				slib::Math::q15_to_float(c),
-				slib::Math::q15_to_rad(r));
+//		printf("%4.3f,%4.3f,%4.3f,%4.3f\r\n",
+//				slib::Math::q15_to_rad(angle),
+//				slib::Math::q15_to_float(s),
+//				slib::Math::q15_to_float(c),
+//				slib::Math::q15_to_rad(r));
+
+		printf("%4.3f,%4.3f\r\n",
+				b::table.sin(angle),
+				b::table.cos(angle));
 
 //		printf("%4x,%4x,%8x,%4.3f,%4.3f,%4.3f,%4.3f,%d,%d\r\n",
 //				c,s,static_cast<int16_t>(c) | (static_cast<int32_t>(s)<<16),
@@ -153,7 +149,7 @@ void b::TestFunctions::cordic_test(void){
 //				slib::Math::q15_to_rad(r),
 //				t1,
 //				t2);
-		angle += 0xFF;
+		angle += 0xFFFFFF;
 		HAL_Delay(10);
 	}
 }
