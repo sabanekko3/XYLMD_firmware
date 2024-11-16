@@ -61,9 +61,9 @@ namespace SabaneLib{
 			int32_t prev_angle_top_2 = (angle >> (resolution_bit-2))&0b11;
 
 			if(prev_angle_top_2 == 3 && angle_top_2 == 0){
-				turn_count ++;
+				++turn_count;
 			}else if(prev_angle_top_2 == 0 && angle_top_2 == 3){
-				turn_count --;
+				--turn_count;
 			}
 
 			angle = new_angle + resolution*turn_count;

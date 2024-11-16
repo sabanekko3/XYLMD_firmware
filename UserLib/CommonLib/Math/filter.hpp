@@ -20,8 +20,8 @@ namespace SabaneLib::Math{
 	template<Arithmetic T>
 	class LowpassFilter{
 	private:
-		T data = 0;
-		const float k = 0;
+		T data = static_cast<T>(0);
+		const float k = 0.0f;
 	public:
 		LowpassFilter(float _k):k(_k){}
 
@@ -33,7 +33,7 @@ namespace SabaneLib::Math{
 			return data;
 		}
 		void reset(void){
-			data = 0;
+			data = static_cast<T>(0);
 		}
 	};
 
@@ -41,8 +41,8 @@ namespace SabaneLib::Math{
 	template<Arithmetic T>
 	class HighpassFilter{
 	private:
-		T data = 0;
-		const float k = 0;
+		T data = static_cast<T>(0);
+		const float k = 0.0f;
 	public:
 		HighpassFilter(float _k):k(_k){}
 
@@ -54,7 +54,7 @@ namespace SabaneLib::Math{
 			return data;
 		}
 		void reset(void){
-			data = 0;
+			data = static_cast<T>(0);
 		}
 	};
 
@@ -67,7 +67,7 @@ namespace SabaneLib::Math{
 		static constexpr size_t mask = buff_size - 1;
 
 		T buff[buff_size] = {0};
-		T sum = 0;
+		T sum = static_cast<T>(0);
 		size_t head = 0;
 
 	public:
@@ -83,8 +83,9 @@ namespace SabaneLib::Math{
 		}
 
 		void reset(void){
+			sum = static_cast<T>(0);
 			for(auto &b : buff){
-				b = 0;
+				b = static_cast<T>(0);
 			}
 		}
 	};

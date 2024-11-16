@@ -19,24 +19,24 @@ namespace SabaneLib::Math{
 		COMPACT = 4
 	};
 
-	template<size_t PERIOD_N,TableMode M = TableMode::NORMAL>
+	template<size_t PeriodN,TableMode M = TableMode::NORMAL>
 	class SinTable{
 	private:
-		static constexpr size_t PERIOD = 1u << PERIOD_N;
+		static constexpr size_t period = 1u << PeriodN;
 
-		float table[PERIOD/static_cast<size_t>(M)];
+		float table[period/static_cast<size_t>(M)];
 
 	public:
 		constexpr SinTable(void){
-			static_assert(PERIOD_N <= 16);
+			static_assert((1 <= PeriodN) && (PeriodN <= 16));
 
 			if constexpr(M == TableMode::NORMAL){
-				for(size_t i = 0; i < PERIOD; i++) {
-					table[i] = std::sin(static_cast<float>(i)/static_cast<float>(PERIOD)*2*M_PI);
+				for(size_t i = 0; i < period; i++) {
+					table[i] = std::sin(static_cast<float>(i)/static_cast<float>(period)*2*M_PI);
 				}
 			}else if(M==TableMode::COMPACT){
-				for(size_t i = 0; i < PERIOD/static_cast<size_t>(M); i++) {
-					table[i] = std::sin(static_cast<float>(i)/static_cast<float>(PERIOD)*2*M_PI);
+				for(size_t i = 0; i < period/static_cast<size_t>(M); i++) {
+					table[i] = std::sin(static_cast<float>(i)/static_cast<float>(period)*2*M_PI);
 				}
 			}
 		}
@@ -45,17 +45,17 @@ namespace SabaneLib::Math{
 		//q15_t functions
 		float sin(q15_t rad) const {
 			if constexpr(M == TableMode::NORMAL){
-				size_t index = (rad >> (16-PERIOD_N)) & (PERIOD-1);
+				size_t index = (rad >> (16-PeriodN)) & (period-1);
 				return table[index];
 
 			}else if(M == TableMode::COMPACT){
-				size_t index = (rad >> (16-PERIOD_N)) & (PERIOD-1);
-				if(index >= PERIOD*3/4){
-					return -table[PERIOD - index - 1];
-				}else if(index >= PERIOD/2){
-					return -table[index - PERIOD/2];
-				}else if(index >= PERIOD/4){
-					return table[PERIOD/2 - index - 1];
+				size_t index = (rad >> (16-PeriodN)) & (period-1);
+				if(index >= period*3/4){
+					return -table[period - index - 1];
+				}else if(index >= period/2){
+					return -table[index - period/2];
+				}else if(index >= period/4){
+					return table[period/2 - index - 1];
 				}else{
 					return table[index];
 				}
@@ -77,17 +77,17 @@ namespace SabaneLib::Math{
 		//q31_t functions
 		float sin(q31_t rad) const {
 			if constexpr(M == TableMode::NORMAL){
-				size_t index = (rad >> (32-PERIOD_N)) & (PERIOD-1);
+				size_t index = (rad >> (32-PeriodN)) & (period-1);
 				return table[index];
 
 			}else if(M == TableMode::COMPACT){
-				size_t index = (rad >> (32-PERIOD_N)) & (PERIOD-1);
-				if(index >= PERIOD*3/4){
-					return -table[PERIOD - index - 1];
-				}else if(index >= PERIOD/2){
-					return -table[index - PERIOD/2];
-				}else if(index >= PERIOD/4){
-					return table[PERIOD/2 - index - 1];
+				size_t index = (rad >> (32-PeriodN)) & (period-1);
+				if(index >= period*3/4){
+					return -table[period - index - 1];
+				}else if(index >= period/2){
+					return -table[index - period/2];
+				}else if(index >= period/4){
+					return table[period/2 - index - 1];
 				}else{
 					return table[index];
 				}

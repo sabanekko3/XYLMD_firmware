@@ -18,9 +18,11 @@ extern "C" int _write(int file, char *ptr, int len) {
 	HAL_UART_Transmit(&huart2, (uint8_t*) ptr, len,100);
 	return len;
 }
+extern uint32_t SystemCoreClock;
 
 extern "C" void main_(void){
 //	b::TestFunctions::cordic_test();
+	printf("clock:%d\r\n",blib::get_timer_freq(&htim1));
 
 	//アナログ系初期化
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
@@ -91,7 +93,7 @@ extern "C" void main_(void){
 			  }
 		}
 
-		b::TestFunctions::print_param();
+//		b::TestFunctions::print_param();
 	}
 }
 

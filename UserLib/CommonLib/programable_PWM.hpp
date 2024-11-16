@@ -59,7 +59,7 @@ namespace SabaneLib{
 			}
 			interval_count  --;
 			if(interval_count <= 0){
-				pattern_count ++;
+				++pattern_count;
 
 				if(playing_pattern[pattern_count] == end_of_pwm_sequence){
 					playing_pattern = nullptr;

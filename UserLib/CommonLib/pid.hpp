@@ -10,8 +10,9 @@
 
 #include "Math/filter.hpp"
 
-#include <float.h>
+#include <cfloat>
 #include <algorithm>
+#include <limits>
 
 namespace SabaneLib{
 
@@ -27,7 +28,9 @@ protected:
 	float limit_min;
 	float limit_max;
 public:
-	PIController(float _pid_freq,float _kp,float _ki,float _k_anti_windup,float _limit_min = -FLT_MAX,float _limit_max = FLT_MAX):
+	PIController(float _pid_freq,float _kp,float _ki,float _k_anti_windup,
+			float _limit_min = std::numeric_limits<float>().lowest(),
+			float _limit_max = std::numeric_limits<float>().max()):
 		pid_freq(_pid_freq),
 		kp(_kp),
 		ki(_ki/pid_freq),
@@ -82,7 +85,10 @@ protected:
 
 	Math::LowpassFilter<float> lpf;
 public:
-	PIDController(float _pid_freq,float _kp,float _ki,float _kd, float _k_anti_windup,float _limit_min = -FLT_MAX,float _limit_max = FLT_MAX,float lpf_gain = 0.15f):
+	PIDController(float _pid_freq,float _kp,float _ki,float _kd, float _k_anti_windup,
+			float _limit_min = std::numeric_limits<float>().lowest(),
+			float _limit_max = std::numeric_limits<float>().max(),
+			float lpf_gain = 0.15f):
 		PIController(_pid_freq,_kp,_ki,_k_anti_windup,_limit_min,_limit_max),
 		kd(_kd*pid_freq),
 		lpf(lpf_gain){
@@ -122,8 +128,8 @@ public:
 	float kp = 0;
 	float ki = 0;
 	float k_anti_windup = 0;
-	float limit_max = 0.0f;
-	float limit_min = 0.0f;
+	float limit_max = std::numeric_limits<float>().max();
+	float limit_min = std::numeric_limits<float>().lowest();
 
 	PIBuilder(float _freq = 1.0f):freq(_freq){}
 
@@ -163,8 +169,8 @@ public:
 	float ki = 0;
 	float kd = 0;
 	float k_anti_windup = 0;
-	float limit_max = 0.0f;
-	float limit_min = 0.0f;
+	float limit_max = std::numeric_limits<float>().max();
+	float limit_min = std::numeric_limits<float>().lowest();
 	float lpf_gain = 0.15f;
 
 	PIDBuilder(float _freq = 1.0f):freq(_freq){}

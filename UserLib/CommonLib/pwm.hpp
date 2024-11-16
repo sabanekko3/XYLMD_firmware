@@ -85,14 +85,14 @@ namespace SabaneLib{
 	class PWMSoft:public IPWM{
 	private:
 		GPIO_TypeDef* const port;
-		const uint16_t pin;
+		const uint_fast16_t pin;
 
 		uint32_t count = 0;
 		uint32_t period = 0;
 		uint32_t duty = 0xFFFFFFFF;
 
 	public:
-		PWMSoft(GPIO_TypeDef *_port,uint16_t _pin,uint16_t _period)
+		PWMSoft(GPIO_TypeDef *_port,uint_fast16_t _pin,uint32_t _period)
 			: port(_port),pin(_pin),period(_period){
 		}
 

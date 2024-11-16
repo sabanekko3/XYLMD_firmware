@@ -27,20 +27,20 @@ namespace SabaneLib{
 	template<typename T, size_t n>
 	class RingBuffer : public IRingBuffer<T>{
 	private:
-		const size_t SIZE = 1<<n;
-		const size_t MASK = SIZE-1;
+		static constexpr size_t size = 1<<n;
+		static constexpr size_t mask = size-1;
 		size_t head = 0;
 		size_t tail = 0;
 		size_t data_count = 0;
 
-		T data_buff[1<<n] = {0};
+		T data_buff[size] = {0};
 	public:
 		bool push(const T &input)override{
 			data_buff[head] = input;
-			head = (head+1) & MASK;
+			head = (head+1) & mask;
 			data_count ++;
-			if(data_count > SIZE){
-				data_count = SIZE;
+			if(data_count > size){
+				data_count = size;
 				tail = head;
 				return false;
 			};
@@ -50,7 +50,7 @@ namespace SabaneLib{
 		bool pop(T &output)override{
 			if(data_count > 0){
 				output = data_buff[tail];
-				tail = (tail + 1) & MASK;
+				tail = (tail + 1) & mask;
 				data_count --;
 				if(data_count < 0) data_count = 0;
 				return true;
@@ -60,7 +60,7 @@ namespace SabaneLib{
 		}
 
 		size_t get_free_level(void)const override{
-			return SIZE - data_count;
+			return size - data_count;
 		}
 		size_t get_busy_level(void)const override{
 			return data_count;

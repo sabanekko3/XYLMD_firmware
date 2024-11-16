@@ -11,6 +11,7 @@
 #include "board_params.hpp"
 #include "motor.hpp"
 #include "LED_pattern.hpp"
+#include "timer_help.hpp"
 
 #include "CommonLib/Math/sin_table.hpp"
 #include "CommonLib/Math/filter.hpp"
