@@ -43,8 +43,7 @@ namespace BoardLib{
 #endif //TIm4
 
 #ifdef TIM5
-		case TIM5:
-			bus = ClockBus::APB1;
+		case reinterpret_cast<uint32_t>(TIM5_BASE):
 			tim_clock = HAL_RCC_GetPCLK1Freq();
 			break;
 #endif //TIm5
