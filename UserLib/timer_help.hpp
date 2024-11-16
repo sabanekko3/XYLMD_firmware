@@ -10,11 +10,9 @@
 
 #include "main.h"
 
-#include <stdio.h>
-
-extern uint32_t SystemCoreClock;
-
 namespace BoardLib{
+
+#ifdef HAL_RCC_MODULE_ENABLED
 	inline uint32_t get_timer_freq(TIM_HandleTypeDef* tim){
 		uint32_t tim_clock = 0;
 
@@ -105,7 +103,6 @@ namespace BoardLib{
 			break;
 #endif //TIM17
 		default:
-			printf("no tim\r\n");
 			Error_Handler();
 		}
 
@@ -117,6 +114,8 @@ namespace BoardLib{
 
 		return tim_clock/__HAL_TIM_GET_AUTORELOAD(tim);
 	}
+#endif //HAL_RCC_MODULE_ENABLED
+
 }
 
 
